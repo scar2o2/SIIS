@@ -3,6 +3,7 @@ import DetectionOverlay from '../components/DetectionOverlay'
 import DetectionResult from '../components/DetectionResult'
 import ImagePreview from '../components/ImagePreview'
 import ImageUploader from '../components/ImageUploader'
+import ReportMap from '../components/ReportMap'
 import { createReport, predictImage } from '../services/aiService'
 import { validateImage } from '../utils/imageUtils'
 import '../App.css'
@@ -13,6 +14,7 @@ function DetectionPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [isSavingReport, setIsSavingReport] = useState(false)
   const [reportMessage, setReportMessage] = useState('')
+  const [savedReport, setSavedReport] = useState(null)
   const [error, setError] = useState('')
 
   const previewUrl = useMemo(() => (file ? URL.createObjectURL(file) : ''), [file])
@@ -30,6 +32,7 @@ function DetectionPage() {
     setError(validationError || '')
     setResult(null)
     setReportMessage('')
+    setSavedReport(null)
     setFile(validationError ? null : nextFile)
   }
 
@@ -58,6 +61,7 @@ function DetectionPage() {
     setResult(null)
     setError('')
     setReportMessage('')
+    setSavedReport(null)
   }
 
   function handleSaveReport() {
@@ -76,11 +80,12 @@ function DetectionPage() {
     navigator.geolocation.getCurrentPosition(
       async ({ coords }) => {
         try {
-          await createReport({
+          const report = await createReport({
             file,
             latitude: coords.latitude,
             longitude: coords.longitude,
           })
+          setSavedReport(report)
           setReportMessage('Report saved successfully with the current device location.')
         } catch (requestError) {
           setReportMessage(requestError.message)
@@ -176,6 +181,17 @@ function DetectionPage() {
               </button>
             )}
             {reportMessage && <p className="message report-message">{reportMessage}</p>}
+            {savedReport && (
+              <div className="report-summary">
+                <strong>Report saved</strong>
+                <span>Status: {savedReport.status || 'SUBMITTED'}</span>
+                <span>Severity: {savedReport.severity}</span>
+                <span>Priority: {savedReport.priority}</span>
+                <span>Issue groups: {savedReport.issue_group_ids?.length || 0}</span>
+                <span>{savedReport.duplicate ? 'Associated with an existing issue group.' : 'New issue group created.'}</span>
+                <ReportMap latitude={savedReport.latitude} longitude={savedReport.longitude} />
+              </div>
+            )}
           </section>
         </div>
       </main>

@@ -24,7 +24,15 @@ function DetectionResult({ result }) {
   }
 
   return (
-    <ol className="detection-list">
+    <>
+      {result.severity && (
+        <div className="report-summary">
+          <span>Severity: {result.severity}</span>
+          <span>Priority: {result.priority || 'LOW'}</span>
+          <span>Detection count: {result.detections.length}</span>
+        </div>
+      )}
+      <ol className="detection-list">
       {result.detections.map((detection, index) => (
         <li
           className={`detection-item ${detection.issue_type === 'road_crack' ? 'crack' : ''}`}
@@ -38,7 +46,8 @@ function DetectionResult({ result }) {
           </div>
         </li>
       ))}
-    </ol>
+      </ol>
+    </>
   )
 }
 

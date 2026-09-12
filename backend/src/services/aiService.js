@@ -25,8 +25,16 @@ function validatePredictionResponse(payload) {
     if (
       !['pothole', 'road_crack'].includes(detection?.issue_type) ||
       !Number.isFinite(detection?.confidence) ||
+      detection.confidence < 0 ||
+      detection.confidence > 1 ||
       !box ||
-      !['x1', 'y1', 'x2', 'y2'].every((key) => Number.isFinite(box[key]))
+      !['x1', 'y1', 'x2', 'y2'].every((key) => Number.isFinite(box[key])) ||
+      box.x1 < 0 ||
+      box.y1 < 0 ||
+      box.x2 <= box.x1 ||
+      box.y2 <= box.y1 ||
+      box.x2 > payload.image.width ||
+      box.y2 > payload.image.height
     ) {
       throw new AiServiceError('The AI service returned an invalid response.')
     }

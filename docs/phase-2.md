@@ -26,6 +26,9 @@ override it.
 - Supabase PostgreSQL schema
 - Private `infrastructure-reports` Storage bucket
 - `POST /api/reports`
+- `GET /api/reports/statistics`
+- `GET /api/reports/:reportId`
+- `PATCH /api/reports/:reportId/status`
 - Image MIME type and 10 MB validation
 - Latitude and longitude validation
 - Report persistence
