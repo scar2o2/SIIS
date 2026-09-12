@@ -1,0 +1,8 @@
+from pathlib import Path
+
+from .base_detector import BaseDetector
+
+
+class CrackDetector(BaseDetector):
+    def __init__(self, model_path: Path, confidence_threshold: float):
+        super().__init__(model_path, "road_crack", confidence_threshold)
