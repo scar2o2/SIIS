@@ -107,7 +107,7 @@ function CommonReportsPage() {
                     <span className={`status-pill priority-${group.priority.toLowerCase()}`}>Priority: {group.priority}</span>
                     <span className={`status-pill ${group.status.toLowerCase()}`}>{group.status.replaceAll('_', ' ')}</span>
                     <a href={mapUrl(group.latitude, group.longitude)} target="_blank" rel="noreferrer">
-                      Open location in Google Maps
+                      Open in Google Maps
                     </a>
                   </article>
                 ))}
@@ -133,20 +133,27 @@ function CommonReportsPage() {
               <span><i className="legend-dot mixed" />Mixed</span>
             </div>
           </div>
-          <div className="nearby-controls">
-            <ReportFilters filters={mapFilters} onChange={handleMapFiltersChange} />
-            <label>
-              Radius meters
+
+          <ReportFilters filters={mapFilters} onChange={handleMapFiltersChange} includeSearch={false} />
+
+          <div className="nearby-row">
+            <div className="filter-field">
+              <label htmlFor="map-radius" className="filter-label">Radius (meters)</label>
               <input
+                id="map-radius"
+                className="filter-input"
                 type="number"
                 min="1"
                 max="50000"
                 value={mapFilters.radius || '1000'}
                 onChange={(event) => handleMapFiltersChange({ ...mapFilters, radius: event.target.value })}
               />
-            </label>
-            <button className="button button-primary" type="button" onClick={handleLocate}>Refresh current location</button>
+            </div>
+            <button className="button button-primary" type="button" onClick={handleLocate}>
+              Refresh current location
+            </button>
           </div>
+
           {mapMessage && <p className="message report-message">{mapMessage}</p>}
           {mapError && <p className="message message-error">{mapError}</p>}
           {mapPosition && (

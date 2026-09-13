@@ -62,20 +62,27 @@ function NearbyReportsPage() {
           <p className="eyebrow">Map search</p>
           <h1>Nearby Reports</h1>
         </section>
-        <div className="nearby-controls">
-          <ReportFilters filters={filters} onChange={handleFiltersChange} />
-          <label>
-            Radius meters
+
+        <ReportFilters filters={filters} onChange={handleFiltersChange} includeSearch={false} />
+
+        <div className="nearby-row">
+          <div className="filter-field">
+            <label htmlFor="nearby-radius" className="filter-label">Radius (meters)</label>
             <input
+              id="nearby-radius"
+              className="filter-input"
               type="number"
               min="1"
               max="50000"
               value={filters.radius || '1000'}
               onChange={(event) => handleFiltersChange({ ...filters, radius: event.target.value })}
             />
-          </label>
-          <button className="button button-primary" type="button" onClick={handleLocate}>Use current location</button>
+          </div>
+          <button className="button button-primary" type="button" onClick={handleLocate}>
+            Use current location
+          </button>
         </div>
+
         {message && <p className="message report-message">{message}</p>}
         {error && <p className="message message-error">{error}</p>}
         {position && (

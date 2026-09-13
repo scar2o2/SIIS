@@ -26,50 +26,106 @@ function ReportFilters({ filters, onChange, includeSearch = true }) {
     onChange({ ...filters, [key]: value })
   }
 
+  function handleReset() {
+    onChange({})
+  }
+
+  const hasActiveFilters = Object.values(filters).some((v) => v && v !== '')
+
   return (
-    <form className="filters" onSubmit={(event) => event.preventDefault()}>
+    <div className="filters">
       {includeSearch && (
-        <label>
-          Search
+        <div className="filter-field filter-field--search">
+          <label htmlFor="filter-search" className="filter-label">Search</label>
           <input
+            id="filter-search"
+            className="filter-input"
+            placeholder="ID, description, status..."
             value={filters.search || ''}
             onChange={(event) => setFilter('search', event.target.value)}
           />
-        </label>
+        </div>
       )}
-      <label>
-        Issue
-        <select value={filters.issue_type || ''} onChange={(event) => setFilter('issue_type', event.target.value)}>
+
+      <div className="filter-field">
+        <label htmlFor="filter-issue" className="filter-label">Issue type</label>
+        <select
+          id="filter-issue"
+          className="filter-input"
+          value={filters.issue_type || ''}
+          onChange={(event) => setFilter('issue_type', event.target.value)}
+        >
           {issueTypes.map(([value, label]) => <option key={label} value={value}>{label}</option>)}
         </select>
-      </label>
-      <label>
-        Severity
-        <select value={filters.severity || ''} onChange={(event) => setFilter('severity', event.target.value)}>
+      </div>
+
+      <div className="filter-field">
+        <label htmlFor="filter-severity" className="filter-label">Severity</label>
+        <select
+          id="filter-severity"
+          className="filter-input"
+          value={filters.severity || ''}
+          onChange={(event) => setFilter('severity', event.target.value)}
+        >
           {levels.map(([value, label]) => <option key={label} value={value}>{label}</option>)}
         </select>
-      </label>
-      <label>
-        Priority
-        <select value={filters.priority || ''} onChange={(event) => setFilter('priority', event.target.value)}>
+      </div>
+
+      <div className="filter-field">
+        <label htmlFor="filter-priority" className="filter-label">Priority</label>
+        <select
+          id="filter-priority"
+          className="filter-input"
+          value={filters.priority || ''}
+          onChange={(event) => setFilter('priority', event.target.value)}
+        >
           {levels.map(([value, label]) => <option key={label} value={value}>{label}</option>)}
         </select>
-      </label>
-      <label>
-        Status
-        <select value={filters.status || ''} onChange={(event) => setFilter('status', event.target.value)}>
+      </div>
+
+      <div className="filter-field">
+        <label htmlFor="filter-status" className="filter-label">Status</label>
+        <select
+          id="filter-status"
+          className="filter-input"
+          value={filters.status || ''}
+          onChange={(event) => setFilter('status', event.target.value)}
+        >
           {statuses.map(([value, label]) => <option key={label} value={value}>{label}</option>)}
         </select>
-      </label>
-      <label>
-        From
-        <input type="date" value={filters.date_from || ''} onChange={(event) => setFilter('date_from', event.target.value)} />
-      </label>
-      <label>
-        To
-        <input type="date" value={filters.date_to || ''} onChange={(event) => setFilter('date_to', event.target.value)} />
-      </label>
-    </form>
+      </div>
+
+      <div className="filter-field">
+        <label htmlFor="filter-date-from" className="filter-label">From date</label>
+        <input
+          id="filter-date-from"
+          className="filter-input"
+          type="date"
+          value={filters.date_from || ''}
+          onChange={(event) => setFilter('date_from', event.target.value)}
+        />
+      </div>
+
+      <div className="filter-field">
+        <label htmlFor="filter-date-to" className="filter-label">To date</label>
+        <input
+          id="filter-date-to"
+          className="filter-input"
+          type="date"
+          value={filters.date_to || ''}
+          onChange={(event) => setFilter('date_to', event.target.value)}
+        />
+      </div>
+
+      {hasActiveFilters && (
+        <div className="filter-field filter-field--action">
+          <span className="filter-label" aria-hidden="true"> </span>
+          <button type="button" className="button button-secondary filter-reset" onClick={handleReset}>
+            Clear filters
+          </button>
+        </div>
+      )}
+    </div>
   )
 }
 
