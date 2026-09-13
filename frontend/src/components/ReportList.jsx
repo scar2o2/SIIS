@@ -32,8 +32,8 @@ function ReportList({ reports, admin = false, onStatusChange, updatingReportId }
             <tr key={report.id}>
               <td>{(report.issue_types || []).map(formatValue).join(', ') || 'none'}</td>
               <td><span className={`status-pill ${report.status.toLowerCase()}`}>{formatValue(report.status)}</span></td>
-              <td>{formatValue(report.severity)}</td>
-              <td>{formatValue(report.priority)}</td>
+              <td><span className={`status-pill severity-${report.severity.toLowerCase()}`}>{formatValue(report.severity)}</span></td>
+              <td><span className={`status-pill priority-${report.priority.toLowerCase()}`}>{formatValue(report.priority)}</span></td>
               <td>{report.detection_count}</td>
               {admin && <td>{report.users?.email || 'Unknown'}</td>}
               <td>{new Date(report.created_at).toLocaleString()}</td>

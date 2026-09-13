@@ -22,14 +22,14 @@ function HomePage() {
       <SiteHeader />
       <main className="main-content">
         <section className="home-hero">
-          <p className="eyebrow">Smart infrastructure reporting</p>
-          <h1>SIIS</h1>
+          <p className="eyebrow">Report. Detect. Prioritize.</p>
+          <h1>INFRA-SIGHT</h1>
           <p className="intro-copy">
-            Detect road damage, submit geo-tagged reports, and help admins prioritize repairs with severity, duplicate grouping, and status tracking.
+            AI-powered infrastructure monitoring for safer and better-connected cities.
           </p>
           <div className="action-row">
-            <a className="button button-primary" href={user ? '/detect' : '/register'}>{user ? 'Create report' : 'Create account'}</a>
-            <a className="button button-secondary" href="/reports">View public reports</a>
+            <a className="button button-primary" href={user ? '/detect' : '/register'}>{user ? 'Report an Issue' : 'Create Account'}</a>
+            <a className="button button-secondary hero-secondary" href="/reports">Explore Nearby Issues</a>
           </div>
         </section>
         <section className="stats-strip">

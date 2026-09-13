@@ -40,7 +40,7 @@ function AdminReportsPage() {
       <SiteHeader />
       <main className="main-content reports-page">
         <section className="intro">
-          <p className="eyebrow">Admin</p>
+          <p className="eyebrow">Municipal operations</p>
           <h1>Reports</h1>
         </section>
         <ReportFilters filters={filters} onChange={setFilters} />

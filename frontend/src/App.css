@@ -849,3 +849,574 @@ h1 {
     flex-direction: column;
   }
 }
+
+/* Civic-tech visual system */
+:root {
+  --civic-bg: #f6f7f9;
+  --civic-card: #ffffff;
+  --civic-primary: #172033;
+  --civic-accent: #0f766e;
+  --civic-accent-dark: #0b5f59;
+  --civic-border: #d9dee7;
+  --civic-text: #263238;
+  --civic-muted: #64748b;
+  --civic-info: #315173;
+  --civic-orange: #d85814;
+  --civic-red: #b42318;
+}
+
+.app-shell {
+  color: var(--civic-text);
+  background: var(--civic-bg);
+}
+
+.site-header,
+.common-section,
+.panel,
+.stats-strip div,
+.filters,
+.nearby-controls,
+.profile-card,
+.admin-sidebar {
+  border-color: var(--civic-border);
+  border-radius: 8px;
+  background: var(--civic-card);
+}
+
+.panel {
+  box-shadow: 0 8px 22px rgba(23, 32, 51, 0.05);
+}
+
+.brand,
+h1,
+.panel-title,
+.common-card strong,
+.profile-card h2 {
+  color: var(--civic-primary);
+}
+
+.brand-mark,
+.button-primary,
+.box-label {
+  background: var(--civic-accent);
+}
+
+.site-nav a,
+.nav-button,
+.common-card a,
+.back-link,
+.map-link,
+.reports-table a,
+.eyebrow,
+.result-count {
+  color: var(--civic-accent);
+}
+
+.button-primary:hover:not(:disabled) {
+  background: var(--civic-accent-dark);
+}
+
+.button-secondary {
+  color: var(--civic-info);
+  border-color: var(--civic-border);
+  background: #fff;
+}
+
+.hero-secondary {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.58);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.home-hero {
+  border-radius: 8px;
+  background:
+    linear-gradient(90deg, rgba(23, 32, 51, 0.88), rgba(23, 32, 51, 0.35)),
+    url("./assets/hero.png") center/cover;
+}
+
+.home-hero .eyebrow {
+  color: #99f6e4;
+}
+
+.intro-copy,
+.panel-description,
+.common-card,
+.detail-list,
+.drop-help,
+.detection-meta,
+.profile-card p,
+.profile-card span,
+.stats-strip span {
+  color: var(--civic-muted);
+}
+
+.drop-zone {
+  border-color: #a7c7c3;
+  border-radius: 8px;
+  background: #f7faf9;
+}
+
+.drop-zone:hover,
+.drop-zone:focus-within {
+  border-color: var(--civic-accent);
+  background: #ecfdf5;
+}
+
+.upload-icon {
+  color: var(--civic-accent);
+  background: #dff6f2;
+  font-size: 0.82rem;
+}
+
+.field-block {
+  display: grid;
+  gap: 8px;
+  margin-top: 20px;
+  color: var(--civic-primary);
+  font-size: 0.86rem;
+  font-weight: 750;
+}
+
+.field-block textarea {
+  width: 100%;
+  resize: vertical;
+  padding: 12px;
+  border: 1px solid var(--civic-border);
+  border-radius: 8px;
+  color: var(--civic-primary);
+  background: #fff;
+  font: inherit;
+}
+
+.reports-table th,
+.reports-table td {
+  border-bottom-color: var(--civic-border);
+}
+
+.status-pill {
+  color: var(--civic-info);
+  background: #eef2f6;
+}
+
+.status-pill.resolved {
+  color: #0f6b45;
+  background: #e7f7ef;
+}
+
+.status-pill.rejected {
+  color: var(--civic-red);
+  background: #fff0f1;
+}
+
+.status-pill.under_review,
+.status-pill.acknowledged,
+.severity-medium,
+.priority-medium {
+  color: #8a520d;
+  background: #fff5df;
+}
+
+.severity-low,
+.priority-low {
+  color: var(--civic-info);
+  background: #eef2f6;
+}
+
+.severity-high,
+.priority-high {
+  color: #a74708;
+  background: #fff0df;
+}
+
+.severity-critical,
+.priority-critical {
+  color: var(--civic-red);
+  background: #fff0f1;
+}
+
+.issue-marker-pothole,
+.legend-dot.pothole {
+  background: var(--civic-orange);
+}
+
+.issue-marker-road-crack,
+.legend-dot.road-crack {
+  background: var(--civic-accent);
+}
+
+.issue-marker-mixed,
+.legend-dot.mixed {
+  background: linear-gradient(135deg, var(--civic-orange) 0 48%, var(--civic-accent) 52% 100%);
+}
+
+.nearby-map {
+  height: 560px;
+}
+
+.profile-card {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  padding: 28px;
+}
+
+.profile-avatar {
+  display: grid;
+  width: 68px;
+  height: 68px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  background: var(--civic-accent);
+  font-size: 1.2rem;
+  font-weight: 900;
+}
+
+.profile-card h2 {
+  margin: 0 0 6px;
+}
+
+.profile-card p,
+.profile-card span {
+  margin: 0;
+}
+
+.admin-layout {
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+}
+
+.admin-sidebar {
+  position: sticky;
+  top: 18px;
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  border: 1px solid var(--civic-border);
+}
+
+.admin-sidebar a {
+  padding: 10px 12px;
+  border-radius: 7px;
+  color: var(--civic-info);
+  font-size: 0.9rem;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.admin-sidebar a:hover,
+.admin-sidebar a:first-child {
+  color: var(--civic-accent);
+  background: #ecfdf5;
+}
+
+.admin-intro {
+  margin-bottom: 20px;
+}
+
+.metric-card {
+  align-content: start;
+  min-height: 150px;
+}
+
+@media (max-width: 760px) {
+  .admin-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-sidebar {
+    position: static;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+
+  .profile-card {
+    align-items: flex-start;
+  }
+}
+
+/* Black-and-white brutalism theme */
+:root {
+  --brutal-bg: #f4f4f4;
+  --brutal-paper: #ffffff;
+  --brutal-ink: #050505;
+  --brutal-muted: #3f3f46;
+  --brutal-line: #050505;
+  --brutal-safe: #0f7a3b;
+  --brutal-danger: #c1121f;
+  --brutal-warning: #b7791f;
+}
+
+.app-shell {
+  color: var(--brutal-ink);
+  background:
+    linear-gradient(#e8e8e8 1px, transparent 1px),
+    linear-gradient(90deg, #e8e8e8 1px, transparent 1px),
+    var(--brutal-bg);
+  background-size: 24px 24px;
+}
+
+.site-header {
+  border-bottom: 3px solid var(--brutal-line);
+  background: var(--brutal-paper);
+}
+
+.header-inner {
+  min-height: 72px;
+}
+
+.brand {
+  color: var(--brutal-ink);
+}
+
+.brand-mark {
+  border: 3px solid var(--brutal-line);
+  border-radius: 0;
+  color: var(--brutal-paper);
+  background: var(--brutal-ink);
+  box-shadow: 4px 4px 0 var(--brutal-line);
+}
+
+.brand-name {
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.site-nav a,
+.nav-button {
+  padding: 6px 0;
+  color: var(--brutal-ink);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.site-nav a:hover,
+.nav-button:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 5px;
+}
+
+.main-content {
+  padding-top: 48px;
+}
+
+.home-hero {
+  min-height: 420px;
+  border: 3px solid var(--brutal-line);
+  border-radius: 0;
+  color: var(--brutal-ink);
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.72)),
+    url("./assets/hero.png") center/cover;
+  box-shadow: 10px 10px 0 var(--brutal-line);
+}
+
+.home-hero h1,
+.home-hero .intro-copy,
+.home-hero .eyebrow {
+  color: var(--brutal-ink);
+}
+
+h1 {
+  color: var(--brutal-ink);
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
+.eyebrow {
+  color: var(--brutal-ink);
+  letter-spacing: 0.16em;
+}
+
+.intro-copy,
+.panel-description,
+.drop-help,
+.detection-meta,
+.detail-list,
+.common-card,
+.profile-card p,
+.profile-card span,
+.stats-strip span {
+  color: var(--brutal-muted);
+}
+
+.common-section,
+.panel,
+.stats-strip div,
+.filters,
+.nearby-controls,
+.profile-card,
+.admin-sidebar,
+.common-card,
+.empty-results,
+.report-summary {
+  border: 3px solid var(--brutal-line);
+  border-radius: 0;
+  background: var(--brutal-paper);
+  box-shadow: 6px 6px 0 var(--brutal-line);
+}
+
+.common-section {
+  padding: 24px;
+}
+
+.panel-title,
+.common-card strong,
+.profile-card h2,
+.stats-strip strong {
+  color: var(--brutal-ink);
+  font-weight: 900;
+}
+
+.button {
+  border: 3px solid var(--brutal-line);
+  border-radius: 0;
+  box-shadow: 4px 4px 0 var(--brutal-line);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.button:hover:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--brutal-line);
+}
+
+.button-primary {
+  color: var(--brutal-paper);
+  background: var(--brutal-ink);
+}
+
+.button-primary:hover:not(:disabled) {
+  background: var(--brutal-ink);
+}
+
+.button-secondary,
+.hero-secondary {
+  color: var(--brutal-ink);
+  border-color: var(--brutal-line);
+  background: var(--brutal-paper);
+}
+
+.drop-zone {
+  border: 3px dashed var(--brutal-line);
+  border-radius: 0;
+  background: var(--brutal-paper);
+}
+
+.drop-zone:hover,
+.drop-zone:focus-within {
+  border-color: var(--brutal-line);
+  background: #f0f0f0;
+}
+
+.upload-icon,
+.profile-avatar {
+  border: 3px solid var(--brutal-line);
+  border-radius: 0;
+  color: var(--brutal-paper);
+  background: var(--brutal-ink);
+  box-shadow: 4px 4px 0 var(--brutal-line);
+}
+
+.filters input,
+.filters select,
+.nearby-controls input,
+.nearby-controls select,
+.status-control select,
+.reports-table select,
+.auth-form input,
+.field-block textarea {
+  border: 3px solid var(--brutal-line);
+  border-radius: 0;
+  color: var(--brutal-ink);
+  background: var(--brutal-paper);
+}
+
+.reports-table {
+  color: var(--brutal-ink);
+}
+
+.reports-table th,
+.reports-table td {
+  border-bottom: 3px solid var(--brutal-line);
+}
+
+.reports-table th {
+  color: var(--brutal-ink);
+  font-weight: 900;
+}
+
+.reports-table tr:hover td {
+  background: #f0f0f0;
+}
+
+.common-card a,
+.back-link,
+.map-link,
+.reports-table a,
+.result-count {
+  color: var(--brutal-ink);
+  font-weight: 900;
+}
+
+.message {
+  border: 3px solid var(--brutal-line);
+  border-radius: 0;
+  box-shadow: 4px 4px 0 var(--brutal-line);
+}
+
+.message-error {
+  color: var(--brutal-danger);
+  background: #fff;
+}
+
+.report-message {
+  color: var(--brutal-ink);
+  background: #fff;
+}
+
+.status-pill {
+  border: 2px solid currentColor;
+  border-radius: 0;
+  font-weight: 900;
+}
+
+.status-pill.resolved {
+  color: var(--brutal-safe);
+}
+
+.status-pill.rejected {
+  color: var(--brutal-danger);
+}
+
+.status-pill.under_review,
+.status-pill.acknowledged {
+  color: var(--brutal-warning);
+}
+
+.nearby-map,
+.report-map,
+.image-stage,
+.preview-image,
+.evidence-image {
+  border: 3px solid var(--brutal-line);
+  border-radius: 0;
+  background: var(--brutal-paper);
+}
+
+.admin-sidebar a {
+  border-radius: 0;
+  color: var(--brutal-ink);
+}
+
+.admin-sidebar a:hover,
+.admin-sidebar a:first-child {
+  color: var(--brutal-paper);
+  background: var(--brutal-ink);
+}

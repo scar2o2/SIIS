@@ -101,11 +101,11 @@ function CommonReportsPage() {
               <div className="common-grid">
                 {data.issue_groups.map((group) => (
                   <article className="common-card" key={group.id}>
-                    <strong>{group.issue_type.replace('_', ' ')}</strong>
+                    <strong>{(group.issue_types || [group.issue_type]).join(' + ').replaceAll('_', ' ')}</strong>
                     <span>{group.report_count} report{group.report_count === 1 ? '' : 's'}</span>
-                    <span>Severity: {group.severity}</span>
-                    <span>Priority: {group.priority}</span>
-                    <span>Status: {group.status}</span>
+                    <span className={`status-pill severity-${group.severity.toLowerCase()}`}>Severity: {group.severity}</span>
+                    <span className={`status-pill priority-${group.priority.toLowerCase()}`}>Priority: {group.priority}</span>
+                    <span className={`status-pill ${group.status.toLowerCase()}`}>{group.status.replaceAll('_', ' ')}</span>
                     <a href={mapUrl(group.latitude, group.longitude)} target="_blank" rel="noreferrer">
                       Open location in Google Maps
                     </a>

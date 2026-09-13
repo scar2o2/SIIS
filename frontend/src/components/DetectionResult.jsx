@@ -27,8 +27,8 @@ function DetectionResult({ result }) {
     <>
       {result.severity && (
         <div className="report-summary">
-          <span>Severity: {result.severity}</span>
-          <span>Priority: {result.priority || 'LOW'}</span>
+          <span className={`status-pill severity-${result.severity.toLowerCase()}`}>Severity: {result.severity}</span>
+          <span className={`status-pill priority-${(result.priority || 'LOW').toLowerCase()}`}>Priority: {result.priority || 'LOW'}</span>
           <span>Detection count: {result.detections.length}</span>
         </div>
       )}

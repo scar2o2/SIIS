@@ -17,6 +17,7 @@ function DetectionPage() {
   const [reportMessage, setReportMessage] = useState('')
   const [savedReport, setSavedReport] = useState(null)
   const [error, setError] = useState('')
+  const [description, setDescription] = useState('')
 
   const previewUrl = useMemo(() => (file ? URL.createObjectURL(file) : ''), [file])
 
@@ -63,6 +64,7 @@ function DetectionPage() {
     setError('')
     setReportMessage('')
     setSavedReport(null)
+    setDescription('')
   }
 
   function handleSaveReport() {
@@ -85,6 +87,7 @@ function DetectionPage() {
             file,
             latitude: coords.latitude,
             longitude: coords.longitude,
+            description,
           })
           setSavedReport(report)
           setReportMessage('Report saved successfully with the current device location.')
@@ -108,11 +111,10 @@ function DetectionPage() {
 
       <main className="main-content">
         <section className="intro">
-          <p className="eyebrow">AI road issue detection</p>
-          <h1>Understand road conditions from one image.</h1>
+          <p className="eyebrow">Citizen report</p>
+          <h1>Report an Infrastructure Issue</h1>
           <p className="intro-copy">
-            Upload a road image and run the trained pothole and road-crack models
-            together. Results include confidence values and precise bounding boxes.
+            Upload a clear road image, add context, and submit it with your current location after AI analysis.
           </p>
         </section>
 
@@ -122,6 +124,15 @@ function DetectionPage() {
             <p className="panel-description">Use a clear image of the road surface.</p>
             <ImageUploader onFileSelected={handleFileSelected} />
             <ImagePreview file={file} previewUrl={previewUrl} />
+            <label className="field-block">
+              Description
+              <textarea
+                value={description}
+                onChange={(event) => setDescription(event.target.value)}
+                rows="4"
+                placeholder="Road name, landmark, lane direction, or safety context"
+              />
+            </label>
             <div className="action-row">
               <button
                 className="button button-primary"
@@ -129,11 +140,11 @@ function DetectionPage() {
                 disabled={!file || isLoading}
                 onClick={handleAnalyze}
               >
-                {isLoading ? 'Analyzing image...' : 'Analyze image'}
+                {isLoading ? 'Analyzing image...' : 'Analyze Image'}
               </button>
               {file && (
                 <button className="button button-secondary" type="button" onClick={handleReset}>
-                  Choose another
+                  Choose Another
                 </button>
               )}
             </div>
@@ -167,7 +178,7 @@ function DetectionPage() {
                 disabled={isSavingReport}
                 onClick={handleSaveReport}
               >
-                {isSavingReport ? 'Saving report...' : 'Save report with current location'}
+                {isSavingReport ? 'Saving report...' : 'Submit Report with Current Location'}
               </button>
             )}
             {reportMessage && <p className="message report-message">{reportMessage}</p>}
