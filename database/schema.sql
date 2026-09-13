@@ -1,12 +1,13 @@
 -- Run this script once in the Supabase SQL Editor.
--- Authentication is intentionally not implemented in this phase.
-
 create extension if not exists pgcrypto;
 
 create table if not exists public.users (
   id uuid primary key default gen_random_uuid(),
   name text,
   email text,
+  password_hash text,
+  role text not null default 'USER'
+    check (role in ('USER', 'ADMIN')),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -94,6 +95,15 @@ alter table public.reports drop constraint if exists reports_status_check;
 alter table public.reports
   add constraint reports_status_check
   check (status in ('SUBMITTED', 'UNDER_REVIEW', 'ACKNOWLEDGED', 'RESOLVED', 'REJECTED'));
+
+alter table public.users add column if not exists password_hash text;
+alter table public.users add column if not exists role text not null default 'USER';
+alter table public.users drop constraint if exists users_role_check;
+alter table public.users
+  add constraint users_role_check
+  check (role in ('USER', 'ADMIN'));
+create unique index if not exists users_email_unique_idx
+  on public.users (lower(email));
 
 alter table public.reports add column if not exists severity text not null default 'LOW';
 alter table public.reports add column if not exists severity_score numeric(8, 4) not null default 0;

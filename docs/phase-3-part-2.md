@@ -27,6 +27,7 @@ unsupported issue types.
 - Frontend displays severity, priority, detection count, and grouping outcome.
 - The saved-report view displays an interactive Leaflet/OpenStreetMap map and
   provides a Google Maps link for navigation.
+- A public Common Reports page lists all submitted reports and issue groups.
 
 ## Database changes
 

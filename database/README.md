@@ -48,5 +48,17 @@ issue grouping, duplicate-report evidence, validated report statuses, and
 report history. The grouping and scoring behavior is implemented by the
 backend in a later step.
 
-The schema does not create authentication, scheduling, waterlogging, trash, or
-predictive-maintenance features.
+The schema includes the account fields required by backend authentication:
+password hashes and `USER`/`ADMIN` roles. Passwords are hashed by the backend;
+the service-role key and password hashes must never be exposed to the frontend.
+Scheduling, waterlogging, trash, and predictive-maintenance features are not
+included.
+
+New accounts are assigned the `USER` role. Promote trusted admins manually in
+Supabase:
+
+```sql
+update public.users
+set role = 'ADMIN'
+where lower(email) = lower('admin@example.com');
+```

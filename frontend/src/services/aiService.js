@@ -1,5 +1,31 @@
+import { authHeaders } from './authService'
+
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3000'
 const REQUEST_TIMEOUT_MS = 60_000
+
+function queryString(filters = {}) {
+  const params = new URLSearchParams()
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') {
+      params.set(key, value)
+    }
+  })
+  const value = params.toString()
+  return value ? `?${value}` : ''
+}
+
+async function readJsonResponse(response, fallbackMessage) {
+  let payload
+  try {
+    payload = await response.json()
+  } catch (error) {
+    throw new Error('The backend returned an invalid response.', { cause: error })
+  }
+  if (!response.ok || payload.success !== true) {
+    throw new Error(payload.message || fallbackMessage)
+  }
+  return payload
+}
 
 export async function predictImage(file) {
   const formData = new FormData()
@@ -12,6 +38,7 @@ export async function predictImage(file) {
     response = await fetch(`${API_URL}/api/ai/predict`, {
       method: 'POST',
       body: formData,
+      headers: authHeaders(),
       signal: controller.signal,
     })
   } catch (error) {
@@ -65,6 +92,7 @@ export async function createReport({ file, latitude, longitude, description = ''
     response = await fetch(`${API_URL}/api/reports`, {
       method: 'POST',
       body: formData,
+      headers: authHeaders(),
     })
   } catch (error) {
     throw new Error('Unable to connect to the backend. Please make sure it is running.', {
@@ -84,4 +112,65 @@ export async function createReport({ file, latitude, longitude, description = ''
   }
 
   return payload
+}
+
+export async function getCommonReports(filters = {}) {
+  let response
+  try {
+    response = await fetch(`${API_URL}/api/reports${queryString(filters)}`)
+  } catch (error) {
+    throw new Error('Unable to connect to the backend. Please make sure it is running.', {
+      cause: error,
+    })
+  }
+
+  return readJsonResponse(response, 'Unable to load common reports.')
+}
+
+export async function getMyReports(filters = {}) {
+  const response = await fetch(`${API_URL}/api/reports/mine${queryString(filters)}`, {
+    headers: authHeaders(),
+  })
+  return readJsonResponse(response, 'Unable to load your reports.')
+}
+
+export async function getAdminReports(filters = {}) {
+  const response = await fetch(`${API_URL}/api/reports/admin${queryString(filters)}`, {
+    headers: authHeaders(),
+  })
+  return readJsonResponse(response, 'Unable to load admin reports.')
+}
+
+export async function getStatistics() {
+  const response = await fetch(`${API_URL}/api/reports/statistics`, {
+    headers: authHeaders(),
+  })
+  return readJsonResponse(response, 'Unable to load dashboard statistics.')
+}
+
+export async function getNearbyReports(filters = {}) {
+  const response = await fetch(`${API_URL}/api/reports/nearby${queryString(filters)}`, {
+    headers: authHeaders(),
+  })
+  return readJsonResponse(response, 'Unable to load nearby reports.')
+}
+
+export async function getReport(reportId) {
+  const response = await fetch(`${API_URL}/api/reports/${reportId}`, {
+    headers: authHeaders(),
+  })
+  const payload = await readJsonResponse(response, 'Unable to load report details.')
+  return payload.report
+}
+
+export async function updateReportStatus(reportId, status) {
+  const response = await fetch(`${API_URL}/api/reports/${reportId}/status`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeaders(),
+    },
+    body: JSON.stringify({ status }),
+  })
+  return readJsonResponse(response, 'Unable to update report status.')
 }

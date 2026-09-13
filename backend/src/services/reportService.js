@@ -55,6 +55,47 @@ function safeMetadataFilename(filename) {
   return basename.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 120) || 'report-image'
 }
 
+function normalizeFilter(value) {
+  return String(value || '').trim()
+}
+
+function normalizeEnumFilter(value) {
+  return normalizeFilter(value).toUpperCase()
+}
+
+function normalizeDate(value, endOfDay = false) {
+  if (!value) return null
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) {
+    throw new ReportServiceError('Date filters must be valid dates.', 400)
+  }
+  if (endOfDay && /^\d{4}-\d{2}-\d{2}$/.test(String(value))) {
+    date.setUTCHours(23, 59, 59, 999)
+  }
+  return date
+}
+
+function haversineMeters(lat1, lon1, lat2, lon2) {
+  const radiusMeters = 6371000
+  const toRadians = (degrees) => degrees * Math.PI / 180
+  const deltaLat = toRadians(lat2 - lat1)
+  const deltaLon = toRadians(lon2 - lon1)
+  const a = Math.sin(deltaLat / 2) ** 2 +
+    Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+    Math.sin(deltaLon / 2) ** 2
+  return 2 * radiusMeters * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+}
+
+function parseRadius(value) {
+  const radius = value === undefined || value === null || value === ''
+    ? 1000
+    : Number(value)
+  if (!Number.isFinite(radius) || radius <= 0 || radius > 50000) {
+    throw new ReportServiceError('Radius must be a number between 1 and 50000 meters.', 400)
+  }
+  return radius
+}
+
 async function removeStorageFile(storagePath) {
   const { error } = await supabase.storage.from(REPORTS_BUCKET).remove([storagePath])
   if (error) {
@@ -62,7 +103,190 @@ async function removeStorageFile(storagePath) {
   }
 }
 
-async function createReport({ file, latitude, longitude, description }) {
+async function signedImageUrl(storagePath) {
+  const { data, error } = await supabase.storage
+    .from(REPORTS_BUCKET)
+    .createSignedUrl(storagePath, 60 * 10)
+  if (error) {
+    console.error(`Unable to sign storage file ${storagePath}: ${error.message}`)
+    return null
+  }
+  return data.signedUrl
+}
+
+async function attachSignedImages(report) {
+  if (!report?.images) return report
+  const images = await Promise.all(report.images.map(async (image) => ({
+    ...image,
+    signed_url: await signedImageUrl(image.storage_path),
+  })))
+  return { ...report, images }
+}
+
+function summarizeReport(report) {
+  const detections = report.detections || []
+  return {
+    ...report,
+    detection_count: detections.length,
+    issue_types: [...new Set(detections.map((detection) => detection.issue_type))],
+    issue_group_ids: [...new Set(
+      detections
+        .map((detection) => detection.issue_group_id)
+        .filter(Boolean)
+    )],
+  }
+}
+
+function reportMatchesFilters(report, filters = {}) {
+  const issueType = normalizeEnumFilter(filters.issue_type)
+  const severity = normalizeEnumFilter(filters.severity)
+  const priority = normalizeEnumFilter(filters.priority)
+  const status = normalizeEnumFilter(filters.status)
+  const search = normalizeFilter(filters.search).toLowerCase()
+  const dateFrom = normalizeDate(filters.date_from)
+  const dateTo = normalizeDate(filters.date_to, true)
+  const createdAt = new Date(report.created_at)
+
+  if (issueType && !(report.issue_types || []).includes(issueType)) return false
+  if (severity && report.severity !== severity) return false
+  if (priority && report.priority !== priority) return false
+  if (status && report.status !== status) return false
+  if (dateFrom && createdAt < dateFrom) return false
+  if (dateTo && createdAt > dateTo) return false
+  if (search) {
+    const haystack = [
+      report.id,
+      report.description,
+      report.status,
+      report.severity,
+      report.priority,
+      ...(report.issue_types || []),
+      report.users?.name,
+      report.users?.email,
+    ].filter(Boolean).join(' ').toLowerCase()
+    if (!haystack.includes(search)) return false
+  }
+
+  return true
+}
+
+function groupMatchesFilters(group, filters = {}) {
+  const issueType = normalizeEnumFilter(filters.issue_type)
+  const severity = normalizeEnumFilter(filters.severity)
+  const priority = normalizeEnumFilter(filters.priority)
+  const status = normalizeEnumFilter(filters.status)
+  const search = normalizeFilter(filters.search).toLowerCase()
+  const dateFrom = normalizeDate(filters.date_from)
+  const dateTo = normalizeDate(filters.date_to, true)
+  const updatedAt = new Date(group.updated_at || group.created_at)
+
+  if (issueType && !(group.issue_types || [group.issue_type]).includes(issueType)) return false
+  if (severity && group.severity !== severity) return false
+  if (priority && group.priority !== priority) return false
+  if (status && group.status !== status) return false
+  if (dateFrom && updatedAt < dateFrom) return false
+  if (dateTo && updatedAt > dateTo) return false
+  if (search) {
+    const haystack = [
+      group.id,
+      group.issue_type,
+      group.status,
+      group.severity,
+      group.priority,
+    ].join(' ').toLowerCase()
+    if (!haystack.includes(search)) return false
+  }
+
+  return true
+}
+
+async function enrichIssueGroups(groups) {
+  const groupIds = groups.map((group) => group.id).filter(Boolean)
+  if (groupIds.length === 0) return groups
+
+  const { data: linkedDetections, error } = await supabase
+    .from('detections')
+    .select('issue_group_id, report_id, issue_type')
+    .in('issue_group_id', groupIds)
+
+  if (error) {
+    throw new ReportServiceError('Unable to load issue-group detections.', 502, { cause: error })
+  }
+
+  const reportIds = [...new Set((linkedDetections || []).map((detection) => detection.report_id))]
+  let reportDetections = []
+  if (reportIds.length > 0) {
+    const { data, error: reportDetectionError } = await supabase
+      .from('detections')
+      .select('report_id, issue_type')
+      .in('report_id', reportIds)
+
+    if (reportDetectionError) {
+      throw new ReportServiceError('Unable to load report issue types.', 502, {
+        cause: reportDetectionError,
+      })
+    }
+    reportDetections = data || []
+  }
+
+  const reportTypes = new Map()
+  for (const detection of reportDetections) {
+    const currentTypes = reportTypes.get(detection.report_id) || []
+    currentTypes.push(detection.issue_type)
+    reportTypes.set(detection.report_id, [...new Set(currentTypes)])
+  }
+
+  const groupTypes = new Map()
+  for (const detection of linkedDetections || []) {
+    const currentTypes = groupTypes.get(detection.issue_group_id) || []
+    currentTypes.push(detection.issue_type)
+    currentTypes.push(...(reportTypes.get(detection.report_id) || []))
+    groupTypes.set(detection.issue_group_id, [...new Set(currentTypes)])
+  }
+
+  return groups.map((group) => ({
+    ...group,
+    issue_types: groupTypes.get(group.id) || [group.issue_type],
+  }))
+}
+
+async function listReports({ filters = {}, userId = null, includeUser = false } = {}) {
+  let query = supabase
+    .from('reports')
+    .select(`
+      id,
+      user_id,
+      status,
+      description,
+      latitude,
+      longitude,
+      severity,
+      severity_score,
+      priority,
+      priority_score,
+      created_at,
+      updated_at,
+      images (id, file_name, mime_type, width, height, created_at),
+      detections (id, issue_type, confidence, issue_group_id, created_at)
+      ${includeUser ? ', users (id, name, email, role)' : ''}
+    `)
+    .order('created_at', { ascending: false })
+
+  if (userId) {
+    query = query.eq('user_id', userId)
+  }
+
+  const { data, error } = await query
+  if (error) {
+    throw new ReportServiceError('Unable to retrieve reports.', 502, { cause: error })
+  }
+
+  return (data || [])
+    .map(summarizeReport)
+    .filter((report) => reportMatchesFilters(report, filters))
+}
+
+async function createReport({ file, latitude, longitude, description, userId }) {
   if (!file) {
     throw new ReportServiceError('An image is required.', 400)
   }
@@ -121,6 +345,7 @@ async function createReport({ file, latitude, longitude, description }) {
   try {
     const { error: reportError } = await supabase.from('reports').insert({
       id: reportId,
+      user_id: userId,
       status: 'SUBMITTED',
       description: description || null,
       latitude: parsedLatitude,
@@ -341,11 +566,12 @@ async function createReport({ file, latitude, longitude, description }) {
   }
 }
 
-async function getReport(reportId) {
+async function getReport(reportId, { userId, role } = {}) {
   const { data: report, error: reportError } = await supabase
     .from('reports')
     .select(`
       id,
+      user_id,
       status,
       description,
       latitude,
@@ -398,9 +624,120 @@ async function getReport(reportId) {
     })
   }
 
+  if (role !== 'ADMIN' && report.user_id !== userId) {
+    throw new ReportServiceError('You do not have permission to view this report.', 403)
+  }
+
   return {
     success: true,
-    report,
+    report: await attachSignedImages(report),
+  }
+}
+
+async function getCommonReports(filters = {}) {
+  const [reportsResult, groupsResult] = await Promise.all([
+    listReports({ filters }),
+    supabase
+      .from('issue_groups')
+      .select(`
+        id,
+        issue_type,
+        latitude,
+        longitude,
+        severity,
+        severity_score,
+        priority,
+        priority_score,
+        status,
+        report_count,
+        created_at,
+        updated_at
+      `)
+      .order('updated_at', { ascending: false }),
+  ])
+
+  if (groupsResult.error) {
+    throw new ReportServiceError('Unable to retrieve common reports.', 502, {
+      cause: groupsResult.error,
+    })
+  }
+
+  return {
+    success: true,
+    reports: reportsResult,
+    issue_groups: (await enrichIssueGroups(groupsResult.data || []))
+      .filter((group) => groupMatchesFilters(group, filters)),
+  }
+}
+
+async function getMyReports({ userId, filters = {} }) {
+  return {
+    success: true,
+    reports: await listReports({ userId, filters }),
+  }
+}
+
+async function getAdminReports(filters = {}) {
+  return {
+    success: true,
+    reports: await listReports({ filters, includeUser: true }),
+  }
+}
+
+async function getNearbyReports({ latitude, longitude, radius, filters = {} }) {
+  const parsedLatitude = parseCoordinate(latitude, 'Latitude', -90, 90)
+  const parsedLongitude = parseCoordinate(longitude, 'Longitude', -180, 180)
+  const parsedRadius = parseRadius(radius)
+
+  const [reports, groupsResult] = await Promise.all([
+    listReports({ filters }),
+    supabase
+      .from('issue_groups')
+      .select(`
+        id,
+        issue_type,
+        latitude,
+        longitude,
+        severity,
+        severity_score,
+        priority,
+        priority_score,
+        status,
+        report_count,
+        created_at,
+        updated_at
+      `)
+      .order('updated_at', { ascending: false }),
+  ])
+
+  if (groupsResult.error) {
+    throw new ReportServiceError('Unable to retrieve nearby reports.', 502, {
+      cause: groupsResult.error,
+    })
+  }
+
+  const withDistance = (item) => ({
+    ...item,
+    distance_meters: Math.round(haversineMeters(
+      parsedLatitude,
+      parsedLongitude,
+      Number(item.latitude),
+      Number(item.longitude)
+    )),
+  })
+
+  return {
+    success: true,
+    radius_meters: parsedRadius,
+    reports: reports
+      .map(withDistance)
+      .filter((report) => report.distance_meters <= parsedRadius)
+      .sort((a, b) => a.distance_meters - b.distance_meters),
+    issue_groups: (await enrichIssueGroups(groupsResult.data || []))
+      .map(withDistance)
+      .filter((group) => group.distance_meters <= parsedRadius)
+      .filter((group) => groupMatchesFilters(group, filters))
+      .sort((a, b) => a.distance_meters - b.distance_meters),
   }
 }
 
@@ -500,6 +837,10 @@ async function getStatistics() {
 module.exports = {
   ReportServiceError,
   createReport,
+  getAdminReports,
+  getCommonReports,
+  getMyReports,
+  getNearbyReports,
   getReport,
   getStatistics,
   updateReportStatus,

@@ -1,9 +1,14 @@
 const express = require('express')
 const multer = require('multer')
+const { requireAuth, requireRole } = require('../middleware/auth')
 
 const {
   ReportServiceError,
   createReport,
+  getAdminReports,
+  getCommonReports,
+  getMyReports,
+  getNearbyReports,
   getReport,
   getStatistics,
   updateReportStatus,
@@ -22,13 +27,14 @@ const upload = multer({
   },
 })
 
-router.post('/', upload.single('image'), async (request, response, next) => {
+router.post('/', requireAuth, upload.single('image'), async (request, response, next) => {
   try {
     const result = await createReport({
       file: request.file,
       latitude: request.body.latitude,
       longitude: request.body.longitude,
       description: request.body.description,
+      userId: request.user.sub,
     })
     response.status(201).json(result)
   } catch (error) {
@@ -36,7 +42,7 @@ router.post('/', upload.single('image'), async (request, response, next) => {
   }
 })
 
-router.get('/statistics', async (_request, response, next) => {
+router.get('/statistics', requireAuth, requireRole('ADMIN'), async (_request, response, next) => {
   try {
     response.json(await getStatistics())
   } catch (error) {
@@ -44,15 +50,58 @@ router.get('/statistics', async (_request, response, next) => {
   }
 })
 
-router.get('/:reportId', async (request, response, next) => {
+router.get('/mine', requireAuth, async (request, response, next) => {
   try {
-    response.json(await getReport(request.params.reportId))
+    response.json(await getMyReports({
+      userId: request.user.sub,
+      filters: request.query,
+    }))
   } catch (error) {
     next(error)
   }
 })
 
-router.patch('/:reportId/status', async (request, response, next) => {
+router.get('/admin', requireAuth, requireRole('ADMIN'), async (request, response, next) => {
+  try {
+    response.json(await getAdminReports(request.query))
+  } catch (error) {
+    next(error)
+  }
+})
+
+router.get('/nearby', async (request, response, next) => {
+  try {
+    response.json(await getNearbyReports({
+      latitude: request.query.latitude,
+      longitude: request.query.longitude,
+      radius: request.query.radius,
+      filters: request.query,
+    }))
+  } catch (error) {
+    next(error)
+  }
+})
+
+router.get('/', async (request, response, next) => {
+  try {
+    response.json(await getCommonReports(request.query))
+  } catch (error) {
+    next(error)
+  }
+})
+
+router.get('/:reportId', requireAuth, async (request, response, next) => {
+  try {
+    response.json(await getReport(request.params.reportId, {
+      userId: request.user.sub,
+      role: request.user.role,
+    }))
+  } catch (error) {
+    next(error)
+  }
+})
+
+router.patch('/:reportId/status', requireAuth, requireRole('ADMIN'), async (request, response, next) => {
   try {
     response.json(await updateReportStatus({
       reportId: request.params.reportId,

@@ -25,6 +25,8 @@ module.exports = {
   aiServiceTimeoutMs: Number.parseInt(process.env.AI_SERVICE_TIMEOUT_MS || '60000', 10),
   duplicateDistanceMeters: Number.parseFloat(process.env.DUPLICATE_DISTANCE_METERS || '50'),
   duplicateShapeTolerance: Number.parseFloat(process.env.DUPLICATE_SHAPE_TOLERANCE || '0.35'),
+  jwtSecret: process.env.JWT_SECRET,
+  jwtExpiresIn: process.env.JWT_EXPIRES_IN || '1d',
   supabaseUrl: process.env.SUPABASE_URL,
   supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
 }

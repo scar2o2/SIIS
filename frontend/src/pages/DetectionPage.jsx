@@ -4,6 +4,7 @@ import DetectionResult from '../components/DetectionResult'
 import ImagePreview from '../components/ImagePreview'
 import ImageUploader from '../components/ImageUploader'
 import ReportMap from '../components/ReportMap'
+import SiteHeader from '../components/SiteHeader'
 import { createReport, predictImage } from '../services/aiService'
 import { validateImage } from '../utils/imageUtils'
 import '../App.css'
@@ -103,18 +104,7 @@ function DetectionPage() {
 
   return (
     <div className="app-shell">
-      <header className="site-header">
-        <div className="header-inner">
-          <div className="brand">
-            <span className="brand-mark" aria-hidden="true">SI</span>
-            <span className="brand-name">Smart Infrastructure Intelligence System</span>
-          </div>
-          <div className="service-status">
-            <span className="status-dot" aria-hidden="true" />
-            Phase 1 detection
-          </div>
-        </div>
-      </header>
+      <SiteHeader />
 
       <main className="main-content">
         <section className="intro">

@@ -3,6 +3,7 @@ const express = require('express')
 
 const { frontendOrigins, port } = require('./config')
 const aiRouter = require('./routes/ai')
+const authRouter = require('./routes/auth')
 const reportsRouter = require('./routes/reports')
 
 const app = express()
@@ -32,6 +33,7 @@ app.get('/health', (_request, response) => {
 })
 
 app.use('/api/ai', aiRouter)
+app.use('/api/auth', authRouter)
 app.use('/api/reports', reportsRouter)
 
 app.use((error, _request, response, _next) => {

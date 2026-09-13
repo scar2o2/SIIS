@@ -1,8 +1,9 @@
 # Smart Infrastructure Intelligence System
 
 This repository contains the Smart Infrastructure Intelligence System (SIIS)
-project. Phase 1 detection is complete and Phase 2 backend persistence is now
-being added incrementally.
+project. Phase 1 detection and the core Phase 2/3 reporting workflow are
+implemented: authentication, user-owned reports, admin review, report filtering,
+duplicate issue grouping, and nearby map search.
 
 ## Phase 1 goal
 
@@ -34,13 +35,19 @@ Do not retrain or replace the original model files.
 
 ## Current scope
 
-Phase 1 intentionally does not include:
+The web app includes:
 
-- login or user accounts
-- database persistence
-- admin or municipality dashboards
+- registration and JWT login/logout
+- `USER` and `ADMIN` role separation
+- profile and My Reports pages
+- public report/group browsing with filters
+- admin dashboard and report status controls
+- nearby issue-group search with configurable radius
+
+The current scope does not include:
+
 - waterlogging or trash models
-- fuzzy logic, DBSCAN, or repair scheduling
+- repair scheduling
 - Android APK generation
 
 ## Starting the AI service
@@ -95,8 +102,32 @@ npm start
 The backend listens on `http://localhost:3000` by default and exposes the
 reporting APIs documented in [docs/phase-2.md](docs/phase-2.md).
 
+Key routes:
+
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `GET /api/auth/me`
+- `POST /api/reports`
+- `GET /api/reports`
+- `GET /api/reports/mine`
+- `GET /api/reports/nearby`
+- `GET /api/reports/admin`
+- `GET /api/reports/statistics`
+- `PATCH /api/reports/:reportId/status`
+
+User-owned and admin routes require `Authorization: Bearer <token>`.
+
 ## Phase 2 database setup
 
 The Supabase schema is documented in [database/README.md](database/README.md).
 Run [database/schema.sql](database/schema.sql) in the Supabase SQL Editor before
 implementing report persistence.
+
+New accounts are created with the `USER` role. To promote an administrator, run
+an update like this in Supabase after that user registers:
+
+```sql
+update public.users
+set role = 'ADMIN'
+where lower(email) = lower('admin@example.com');
+```
