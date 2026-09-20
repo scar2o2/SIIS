@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import ReportFilters from '../components/ReportFilters'
 import ReportList from '../components/ReportList'
 import SiteHeader from '../components/SiteHeader'
+import { SkeletonReportList } from '../components/Skeleton'
 import { getAdminReports, updateReportStatus } from '../services/aiService'
 import '../App.css'
 
@@ -10,6 +11,7 @@ function AdminReportsPage() {
   const [reports, setReports] = useState([])
   const [error, setError] = useState('')
   const [updatingReportId, setUpdatingReportId] = useState('')
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     getAdminReports(filters)
@@ -18,6 +20,7 @@ function AdminReportsPage() {
         setError('')
       })
       .catch((requestError) => setError(requestError.message))
+      .finally(() => setIsLoading(false))
   }, [filters])
 
   async function handleStatusChange(reportId, status) {
@@ -48,14 +51,14 @@ function AdminReportsPage() {
         <section className="common-section">
           <div className="results-header">
             <h2 className="panel-title">All reports</h2>
-            <span className="result-count">{reports.length} reports</span>
+            <span className="result-count">{isLoading ? 'Loading' : `${reports.length} reports`}</span>
           </div>
-          <ReportList
+          {isLoading ? <SkeletonReportList /> : <ReportList
             reports={reports}
             admin
             onStatusChange={handleStatusChange}
             updatingReportId={updatingReportId}
-          />
+          />}
         </section>
       </main>
     </div>

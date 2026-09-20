@@ -2,6 +2,9 @@ const issueTypes = [
   ['', 'All issues'],
   ['POTHOLE', 'Pothole'],
   ['ROAD_CRACK', 'Road crack'],
+  ['broken_bin', 'broken_bin'],
+  ['overflowing_bin', 'overflowing_bin'],
+  ['trash_on_road', 'trash_on_road'],
 ]
 
 const levels = [
@@ -22,6 +25,7 @@ const statuses = [
 ]
 
 function ReportFilters({ filters, onChange, includeSearch = true }) {
+  const [isOpen, setIsOpen] = useState(false)
   function setFilter(key, value) {
     onChange({ ...filters, [key]: value })
   }
@@ -31,9 +35,21 @@ function ReportFilters({ filters, onChange, includeSearch = true }) {
   }
 
   const hasActiveFilters = Object.values(filters).some((v) => v && v !== '')
+  const activeFilterCount = Object.values(filters).filter((v) => v && v !== '').length
 
   return (
-    <div className="filters">
+    <div className="filter-panel">
+      <button
+        className={`filter-toggle ${hasActiveFilters ? 'has-active' : ''}`}
+        type="button"
+        aria-expanded={isOpen}
+        onClick={() => setIsOpen((current) => !current)}
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4" /></svg>
+        <span>{isOpen ? 'Hide filters' : 'Show filters'}</span>
+        {hasActiveFilters && <span className="filter-count">{activeFilterCount}</span>}
+      </button>
+      {isOpen && <div className="filters">
       {includeSearch && (
         <div className="filter-field filter-field--search">
           <label htmlFor="filter-search" className="filter-label">Search</label>
@@ -125,8 +141,10 @@ function ReportFilters({ filters, onChange, includeSearch = true }) {
           </button>
         </div>
       )}
+      </div>}
     </div>
   )
 }
 
 export default ReportFilters
+import { useState } from 'react'

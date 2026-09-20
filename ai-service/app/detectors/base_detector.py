@@ -51,12 +51,16 @@ class BaseDetector:
 
             boxes = result.boxes.xyxy.cpu().tolist()
             confidences = result.boxes.conf.cpu().tolist()
+            class_ids = result.boxes.cls.cpu().tolist() if result.boxes.cls is not None else []
 
-            for coordinates, confidence in zip(boxes, confidences):
+            for index, (coordinates, confidence) in enumerate(zip(boxes, confidences)):
                 x1, y1, x2, y2 = coordinates
+                issue_type = self.issue_type
+                if self.issue_type == "trash" and index < len(class_ids):
+                    issue_type = str(self.model.names[int(class_ids[index])])
                 detections.append(
                     Detection(
-                        issue_type=self.issue_type,
+                        issue_type=issue_type,
                         confidence=float(confidence),
                         x1=float(x1),
                         y1=float(y1),

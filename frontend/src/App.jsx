@@ -1,3 +1,4 @@
+import NearbyReportsPage from './pages/NearbyReportsPage'
 import AdminDashboardPage from './pages/AdminDashboardPage'
 import AdminReportsPage from './pages/AdminReportsPage'
 import DetectionPage from './pages/DetectionPage'
@@ -25,20 +26,22 @@ function requireAdmin(page) {
 }
 
 function App() {
-  if (window.location.pathname === '/login') return <AuthPage />
-  if (window.location.pathname === '/register') return <AuthPage mode="register" />
-  if (window.location.pathname === '/') return <HomePage />
-  if (window.location.pathname === '/detect') return requireSignedIn(<DetectionPage />)
-  if (window.location.pathname === '/me') return requireSignedIn(<ProfilePage />)
-  if (window.location.pathname === '/my-reports') return requireSignedIn(<MyReportsPage />)
-  if (window.location.pathname === '/nearby') return redirect('/reports')
-  if (window.location.pathname === '/admin') return requireAdmin(<AdminDashboardPage />)
-  if (window.location.pathname === '/admin/reports') return requireAdmin(<AdminReportsPage />)
-  const reportDetailsMatch = window.location.pathname.match(/^\/reports\/([^/]+)$/)
+  const path = window.location.pathname.replace(/\/+$/, '') || '/'
+
+  if (path === '/login') return <AuthPage />
+  if (path === '/register') return <AuthPage mode="register" />
+  if (path === '/') return <HomePage />
+  if (path === '/detect') return requireSignedIn(<DetectionPage />)
+  if (path === '/me') return requireSignedIn(<ProfilePage />)
+  if (path === '/my-reports') return requireSignedIn(<MyReportsPage />)
+  if (path === '/nearby') return <NearbyReportsPage />
+  if (path === '/admin') return requireAdmin(<AdminDashboardPage />)
+  if (path === '/admin/reports') return requireAdmin(<AdminReportsPage />)
+  const reportDetailsMatch = path.match(/^\/reports\/([^/]+)$/)
   if (reportDetailsMatch) {
-    return requireSignedIn(<ReportDetailsPage reportId={reportDetailsMatch[1]} />)
+    return <ReportDetailsPage reportId={reportDetailsMatch[1]} />
   }
-  return window.location.pathname === '/reports'
+  return path === '/reports'
     ? <CommonReportsPage />
     : <HomePage />
 }

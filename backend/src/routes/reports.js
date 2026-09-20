@@ -90,12 +90,9 @@ router.get('/', async (request, response, next) => {
   }
 })
 
-router.get('/:reportId', requireAuth, async (request, response, next) => {
+router.get('/:reportId', async (request, response, next) => {
   try {
-    response.json(await getReport(request.params.reportId, {
-      userId: request.user.sub,
-      role: request.user.role,
-    }))
+    response.json(await getReport(request.params.reportId))
   } catch (error) {
     next(error)
   }

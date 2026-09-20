@@ -18,6 +18,15 @@ const REPORT_STATUSES = [
   'REJECTED',
 ]
 
+function normalizeIssueType(issueType) {
+  const normalized = String(issueType || '').toLowerCase()
+  if (normalized === 'road_crack') return 'ROAD_CRACK'
+  if (['broken_bin', 'overflowing_bin', 'trash_on_road'].includes(normalized)) {
+    return normalized
+  }
+  return 'POTHOLE'
+}
+
 class ReportServiceError extends Error {
   constructor(message, statusCode = 500, options = {}) {
     super(message, options)
@@ -61,6 +70,14 @@ function normalizeFilter(value) {
 
 function normalizeEnumFilter(value) {
   return normalizeFilter(value).toUpperCase()
+}
+
+function normalizeIssueFilter(value) {
+  const normalized = normalizeFilter(value)
+  if (['broken_bin', 'overflowing_bin', 'trash_on_road'].includes(normalized.toLowerCase())) {
+    return normalized.toLowerCase()
+  }
+  return normalized.toUpperCase()
 }
 
 function normalizeDate(value, endOfDay = false) {
@@ -138,7 +155,7 @@ function summarizeReport(report) {
 }
 
 function reportMatchesFilters(report, filters = {}) {
-  const issueType = normalizeEnumFilter(filters.issue_type)
+  const issueType = normalizeIssueFilter(filters.issue_type)
   const severity = normalizeEnumFilter(filters.severity)
   const priority = normalizeEnumFilter(filters.priority)
   const status = normalizeEnumFilter(filters.status)
@@ -171,7 +188,7 @@ function reportMatchesFilters(report, filters = {}) {
 }
 
 function groupMatchesFilters(group, filters = {}) {
-  const issueType = normalizeEnumFilter(filters.issue_type)
+  const issueType = normalizeIssueFilter(filters.issue_type)
   const severity = normalizeEnumFilter(filters.severity)
   const priority = normalizeEnumFilter(filters.priority)
   const status = normalizeEnumFilter(filters.status)
@@ -307,7 +324,7 @@ async function createReport({ file, latitude, longitude, description, userId }) 
     severityScore: severity.score,
     reportCount: 1,
     issueTypes: [...new Set(aiResult.detections.map((detection) => (
-      detection.issue_type === 'road_crack' ? 'ROAD_CRACK' : 'POTHOLE'
+      normalizeIssueType(detection.issue_type)
     )))],
   })
   let annotatedImage
@@ -381,7 +398,7 @@ async function createReport({ file, latitude, longitude, description, userId }) 
 
     const groupedDetections = []
     for (const detection of aiResult.detections) {
-      const issueType = detection.issue_type === 'road_crack' ? 'ROAD_CRACK' : 'POTHOLE'
+      const issueType = normalizeIssueType(detection.issue_type)
       const groupResult = await resolveIssueGroup({
         issueType,
         latitude: parsedLatitude,
@@ -507,6 +524,16 @@ async function createReport({ file, latitude, longitude, description, userId }) 
     }
 
     const issueTypes = [...new Set(groupedDetections.map(({ issueType }) => issueType))]
+    const { data: reporter, error: reporterError } = await supabase
+      .from('users')
+      .select('id, name, email, role')
+      .eq('id', userId)
+      .maybeSingle()
+    if (reporterError) {
+      throw new ReportServiceError('Unable to load report owner details.', 502, {
+        cause: reporterError,
+      })
+    }
     try {
       await notifyNewIssue({
         reportId,
@@ -517,6 +544,7 @@ async function createReport({ file, latitude, longitude, description, userId }) 
         longitude: parsedLongitude,
         detectionCount: aiResult.detections.length,
         duplicate: groupedDetections.some(({ isDuplicate }) => isDuplicate),
+        reporter,
         annotatedImage,
       })
     } catch (notificationError) {
@@ -566,7 +594,7 @@ async function createReport({ file, latitude, longitude, description, userId }) 
   }
 }
 
-async function getReport(reportId, { userId, role } = {}) {
+async function getReport(reportId) {
   const { data: report, error: reportError } = await supabase
     .from('reports')
     .select(`
@@ -622,10 +650,6 @@ async function getReport(reportId, { userId, role } = {}) {
     throw new ReportServiceError('Unable to retrieve the report.', 502, {
       cause: reportError,
     })
-  }
-
-  if (role !== 'ADMIN' && report.user_id !== userId) {
-    throw new ReportServiceError('You do not have permission to view this report.', 403)
   }
 
   return {

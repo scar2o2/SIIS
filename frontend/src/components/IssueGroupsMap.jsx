@@ -49,7 +49,7 @@ function IssueGroupsMap({ groups }) {
           return (
             <Marker key={group.id} position={position}>
               <Popup>
-                <strong>{group.issue_type.replaceAll('_', ' ')}</strong><br />
+                <strong>{(group.issue_types || [group.issue_type]).join(' + ').replaceAll('_', ' ')}</strong><br />
                 Status: {group.status}<br />
                 Severity: {group.severity}<br />
                 Priority: {group.priority}<br />

@@ -1,0 +1,150 @@
+SIIS - REMAINING FEATURES
+=========================
+
+This file tracks features that are not yet fully implemented or are intentionally
+deferred until the web platform is complete.
+
+1. MOBILE APP CONVERSION
+------------------------
+
+- Convert the completed React web application into an Android application using
+  Capacitor.
+- Add the required Capacitor Android project and native build configuration.
+- Configure the application ID, app name, launcher icon, splash screen, signing
+  configuration, and release build settings.
+- Produce and test a debug APK, release APK, and, if required, an Android App
+  Bundle (AAB).
+- Test installation, startup, upgrades, and offline/reconnect behavior on real
+  Android devices.
+
+2. CAMERA-ONLY REPORT UPLOAD
+----------------------------
+
+- Add an Android camera capture flow for reporting an issue.
+- The report screen should allow a user to capture a new image directly from the
+  device camera.
+- Decide whether gallery/file uploads should remain available. The requested
+  target behavior is camera-only upload for the mobile app.
+- Request and explain camera permission before opening the camera.
+- Handle denied, cancelled, unavailable, and interrupted camera operations.
+- Validate captured image type, dimensions, and file size before submission.
+- Preserve the existing image preview, AI detection, annotation, and report
+  submission workflow after capture.
+
+3. DEVICE LOCATION AND GPS
+--------------------------
+
+- Integrate Capacitor Geolocation for mobile devices.
+- Request location permission with a clear explanation.
+- Use the device location when submitting a report.
+- Allow the user to retry location acquisition when permission is denied or GPS
+  is unavailable.
+- Keep the default map center fallback for users who do not share their location.
+- Clearly distinguish a default map center from the user's actual position.
+- Test location behavior indoors, with GPS disabled, and with approximate
+  location enabled.
+
+4. MOBILE MAP EXPERIENCE
+------------------------
+
+- Validate Leaflet rendering inside the Android WebView.
+- Ensure marker icons, marker legends, popups, tile loading, and fit-to-bounds
+  work on small screens.
+- Add an appropriate loading and error state when map tiles or nearby data are
+  unavailable.
+- Consider a native-map implementation only if WebView Leaflet performance is
+  insufficient.
+
+5. PUSH NOTIFICATIONS
+---------------------
+
+- Add push notifications for report status changes such as acknowledged,
+  under review, resolved, or rejected.
+- Register mobile device tokens securely.
+- Add notification preferences and a way to disable non-essential notifications.
+- Deep-link a notification to the relevant report details screen.
+
+6. OFFLINE AND RETRY SUPPORT
+----------------------------
+
+- Detect loss of connectivity before report submission.
+- Keep a captured report locally when upload cannot complete.
+- Show pending, retrying, failed, and submitted states.
+- Retry uploads without creating duplicate reports.
+- Remove local image/report data after confirmed server persistence.
+- Protect locally stored report data and captured images.
+
+7. AUTHENTICATION HARDENING
+---------------------------
+
+- Replace localStorage JWT persistence with a more secure mobile/web session
+  strategy where appropriate.
+- Add token expiry handling and refresh/re-login behavior.
+- Add logout from all active devices if required.
+- Add password reset and account recovery.
+- Add profile editing and password change flows.
+
+8. ADMIN AND OPERATIONS IMPROVEMENTS
+------------------------------------
+
+- Add pagination to admin and community report lists.
+- Add bulk status updates for administrators.
+- Add export of report and issue-group data.
+- Add audit information showing the administrator who changed a status.
+- Add charts and trends for issue types, severity, priority, and resolution time.
+- Add admin controls for notification delivery and model availability.
+
+9. DATA AND SECURITY HARDENING
+------------------------------
+
+- Sanitize public report responses so unnecessary ownership fields are not
+  exposed.
+- Validate JWT_SECRET and other required secrets at backend startup.
+- Review Supabase RLS policies and service-role usage.
+- Add rate limiting for authentication, detection, and report submission routes.
+- Add server-side input validation and request size limits to every relevant
+  endpoint.
+- Add structured logging and monitoring without logging passwords, tokens, or
+  private image contents.
+
+10. AI AND MODEL MANAGEMENT
+---------------------------
+
+- Add model version metadata to each detection/report.
+- Add an administrator-visible model health and version page.
+- Add configurable confidence thresholds per model if needed.
+- Add automated regression samples for pothole, road-crack, broken-bin,
+  overflowing-bin, and trash-on-road detections.
+- Verify that the native trash model labels remain unchanged:
+  broken_bin, overflowing_bin, and trash_on_road.
+- Add model loading and inference performance monitoring.
+
+11. TESTING AND RELEASE READINESS
+---------------------------------
+
+- Add backend integration tests for authentication, report persistence, grouping,
+  nearby reports, status updates, and notifications.
+- Add AI-service tests for all detector outputs and invalid images.
+- Add frontend tests for route guards, mobile navigation, loading states, filters,
+  maps, and report submission.
+- Run accessibility checks on desktop and mobile layouts.
+- Test the complete workflow on supported browsers and Android versions.
+- Add CI checks for linting, builds, database migration validation, and tests.
+- Document environment variables, local startup, deployment, and rollback steps.
+
+12. DEPLOYMENT
+--------------
+
+- Deploy the frontend, Express backend, and FastAPI AI service independently or
+  using a documented combined deployment.
+- Configure HTTPS, production CORS origins, secure secrets, SMTP, Supabase, and
+  model file storage.
+- Configure production logging, health checks, backups, and monitoring.
+- Publish the Android application through the intended distribution channel.
+
+Priority order:
+1. Camera-only capture and mobile location.
+2. Capacitor Android conversion and real-device testing.
+3. Offline/retry and push notifications.
+4. Security hardening and automated tests.
+5. Production deployment and store/distribution release.

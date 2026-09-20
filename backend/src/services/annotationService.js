@@ -12,7 +12,11 @@ function escapeXml(value) {
 async function createAnnotatedImage({ buffer, image, detections }) {
   const labels = detections.map((detection, index) => {
     const { x1, y1, x2, y2 } = detection.bounding_box
-    const color = detection.issue_type === 'road_crack' ? '#d47a17' : '#1463d8'
+    const color = detection.issue_type === 'road_crack'
+      ? '#d47a17'
+      : ['broken_bin', 'overflowing_bin', 'trash_on_road'].includes(detection.issue_type)
+        ? '#16a085'
+        : '#1463d8'
     const label = `${index + 1}. ${detection.issue_type} ${Math.round(detection.confidence * 100)}%`
     const labelWidth = Math.max(140, label.length * 8 + 16)
     const labelY = Math.max(20, y1)

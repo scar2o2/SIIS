@@ -46,7 +46,7 @@ The web app includes:
 
 The current scope does not include:
 
-- waterlogging or trash models
+- waterlogging models (trash detection is supported when the trash model is installed)
 - repair scheduling
 - Android APK generation
 

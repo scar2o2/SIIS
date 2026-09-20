@@ -18,5 +18,8 @@ export function validateImage(file) {
 }
 
 export function formatIssueType(issueType) {
-  return issueType === 'road_crack' ? 'Road crack' : 'Pothole'
+  const normalized = String(issueType || '').toLowerCase()
+  if (normalized === 'road_crack') return 'Road crack'
+  if (normalized === 'pothole') return 'Pothole'
+  return String(issueType || 'Unknown issue')
 }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import SiteHeader from '../components/SiteHeader'
 import { getStatistics } from '../services/aiService'
+import { SkeletonCards } from '../components/Skeleton'
 import '../App.css'
 
 function metricEntries(object = {}) {
@@ -34,7 +35,7 @@ function AdminDashboardPage() {
             <h1>Admin Dashboard</h1>
           </section>
           {error && <p className="message message-error">{error}</p>}
-          {!stats && !error && <p className="message report-message">Loading dashboard...</p>}
+          {!stats && !error && <SkeletonCards count={4} />}
           {stats && (
             <>
               <section className="stats-strip">

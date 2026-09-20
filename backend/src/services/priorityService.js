@@ -21,7 +21,11 @@ function calculatePriority({ severity, severityScore, reportCount, issueTypes })
     CRITICAL: 75,
   }[severity] || 0
   const recurrenceContribution = Math.min(Math.max(reportCount - 1, 0) * 5, 15)
-  const issueTypeContribution = issueTypes.includes('ROAD_CRACK') ? 5 : 0
+  const issueTypeContribution = issueTypes.includes('ROAD_CRACK')
+    ? 5
+    : issueTypes.some((issueType) => ['broken_bin', 'overflowing_bin', 'trash_on_road'].includes(issueType))
+      ? 3
+      : 0
   const supportingScore = Math.min(Math.max(Number(severityScore) || 0, 0) / 4, 10)
   const score = Number((
     severityContribution

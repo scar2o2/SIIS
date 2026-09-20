@@ -10,7 +10,11 @@ function DetectionOverlay({ imageUrl, image, detections }) {
         const top = (y1 / image.height) * 100
         const width = ((x2 - x1) / image.width) * 100
         const height = ((y2 - y1) / image.height) * 100
-        const className = detection.issue_type === 'road_crack' ? 'box crack' : 'box'
+        const className = detection.issue_type === 'road_crack'
+          ? 'box crack'
+          : ['broken_bin', 'overflowing_bin', 'trash_on_road'].includes(detection.issue_type)
+            ? 'box trash'
+            : 'box'
 
         return (
           <div

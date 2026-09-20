@@ -17,7 +17,7 @@ function DetectionResult({ result }) {
       <div className="empty-results">
         <p>
           <strong>No supported infrastructure issue detected.</strong>
-          Try another image if you expected a pothole or road crack.
+          Try another image if you expected a pothole, road crack, or trash detection.
         </p>
       </div>
     )
@@ -35,7 +35,7 @@ function DetectionResult({ result }) {
       <ol className="detection-list">
       {result.detections.map((detection, index) => (
         <li
-          className={`detection-item ${detection.issue_type === 'road_crack' ? 'crack' : ''}`}
+          className={`detection-item ${detection.issue_type === 'road_crack' ? 'crack' : ['broken_bin', 'overflowing_bin', 'trash_on_road'].includes(detection.issue_type) ? 'trash' : ''}`}
           key={`${detection.issue_type}-${index}`}
         >
           <div className="detection-label">

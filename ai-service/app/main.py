@@ -8,8 +8,10 @@ from app.config import (
     FRONTEND_ORIGIN,
     POTHOLE_MODEL_PATH,
     ROAD_CRACK_MODEL_PATH,
+    TRASH_MODEL_PATH,
 )
 from app.detectors.crack_detector import CrackDetector
+from app.detectors.base_detector import BaseDetector
 from app.detectors.detector_manager import DetectorManager
 from app.detectors.pothole_detector import PotholeDetector
 from app.routes.prediction import router as prediction_router
@@ -21,6 +23,7 @@ async def lifespan(app: FastAPI):
         [
             PotholeDetector(POTHOLE_MODEL_PATH, CONFIDENCE_THRESHOLD),
             CrackDetector(ROAD_CRACK_MODEL_PATH, CONFIDENCE_THRESHOLD),
+            BaseDetector(TRASH_MODEL_PATH, "trash", CONFIDENCE_THRESHOLD),
         ]
     )
     yield

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import ReportFilters from '../components/ReportFilters'
 import ReportList from '../components/ReportList'
 import SiteHeader from '../components/SiteHeader'
+import { SkeletonReportList } from '../components/Skeleton'
 import { getMyReports } from '../services/aiService'
 import '../App.css'
 
@@ -9,6 +10,7 @@ function MyReportsPage() {
   const [filters, setFilters] = useState({})
   const [reports, setReports] = useState([])
   const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     getMyReports(filters)
@@ -17,6 +19,7 @@ function MyReportsPage() {
         setError('')
       })
       .catch((requestError) => setError(requestError.message))
+      .finally(() => setIsLoading(false))
   }, [filters])
 
   return (
@@ -32,9 +35,9 @@ function MyReportsPage() {
         <section className="common-section">
           <div className="results-header">
             <h2 className="panel-title">Owned reports</h2>
-            <span className="result-count">{reports.length} reports</span>
+            <span className="result-count">{isLoading ? 'Loading' : `${reports.length} reports`}</span>
           </div>
-          <ReportList reports={reports} />
+          {isLoading ? <SkeletonReportList /> : <ReportList reports={reports} />}
         </section>
       </main>
     </div>

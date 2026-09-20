@@ -23,7 +23,13 @@ function validatePredictionResponse(payload) {
   for (const detection of payload.detections) {
     const box = detection?.bounding_box
     if (
-      !['pothole', 'road_crack'].includes(detection?.issue_type) ||
+      ![
+        'pothole',
+        'road_crack',
+        'broken_bin',
+        'overflowing_bin',
+        'trash_on_road',
+      ].includes(detection?.issue_type) ||
       !Number.isFinite(detection?.confidence) ||
       detection.confidence < 0 ||
       detection.confidence > 1 ||

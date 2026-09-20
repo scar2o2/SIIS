@@ -28,6 +28,7 @@ async function notifyNewIssue({
   longitude,
   detectionCount,
   duplicate,
+  reporter,
   annotatedImage,
 }) {
   const transporter = createTransporter()
@@ -36,6 +37,8 @@ async function notifyNewIssue({
     return { sent: false, configured: false }
   }
 
+  const reporterName = reporter?.name?.trim() || 'Unknown'
+  const reporterEmail = reporter?.email?.trim() || 'Unknown'
   const mapUrl = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`
   await transporter.sendMail({
     from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
@@ -44,6 +47,9 @@ async function notifyNewIssue({
     html: `
       <h2>New infrastructure issue detected</h2>
       <p><strong>Report ID:</strong> ${reportId}</p>
+      <h3>Submitted by</h3>
+      <p><strong>Name:</strong> ${reporterName}<br>
+      <strong>Email:</strong> ${reporterEmail}</p>
       <p><strong>Issue type(s):</strong> ${issueTypes.join(', ') || 'No detected issue'}</p>
       <p><strong>Severity:</strong> ${severity}<br>
       <strong>Priority:</strong> ${priority}<br>
@@ -56,6 +62,9 @@ async function notifyNewIssue({
     text: [
       'New infrastructure issue detected.',
       `Report ID: ${reportId}`,
+      'Submitted by:',
+      `Name: ${reporterName}`,
+      `Email: ${reporterEmail}`,
       `Issue Type(s): ${issueTypes.join(', ') || 'No detected issue'}`,
       `Severity: ${severity}`,
       `Priority: ${priority}`,

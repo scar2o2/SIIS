@@ -1,19 +1,27 @@
-import { useState } from 'react'
-import { Circle, MapContainer, Marker, Popup, TileLayer } from 'react-leaflet'
+import { useEffect, useState } from 'react'
 import ReportFilters from '../components/ReportFilters'
+import NearbyReportsMap from '../components/NearbyReportsMap'
 import SiteHeader from '../components/SiteHeader'
 import { getNearbyReports } from '../services/aiService'
 import { configureLeafletIcon } from '../utils/leafletIcon'
 import '../App.css'
 
+const DEFAULT_POSITION = [13.185565, 80.105153]
+
 function NearbyReportsPage() {
   configureLeafletIcon()
 
   const [filters, setFilters] = useState({ radius: '1000' })
-  const [position, setPosition] = useState(null)
+  const [position, setPosition] = useState(DEFAULT_POSITION)
   const [groups, setGroups] = useState([])
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    loadNearby(DEFAULT_POSITION[0], DEFAULT_POSITION[1])
+    // The initial map query intentionally uses the project default location.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   function loadNearby(latitude, longitude, nextFilters = filters) {
     setError('')
@@ -85,29 +93,24 @@ function NearbyReportsPage() {
 
         {message && <p className="message report-message">{message}</p>}
         {error && <p className="message message-error">{error}</p>}
-        {position && (
-          <section className="common-section">
-            <div className="nearby-map">
-              <MapContainer center={position} zoom={14} scrollWheelZoom>
-                <TileLayer
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                <Circle center={position} radius={Number(filters.radius || 1000)} pathOptions={{ color: '#1463d8' }} />
-                <Marker position={position}><Popup>Your search location</Popup></Marker>
-                {groups.map((group) => (
-                  <Marker key={group.id} position={[group.latitude, group.longitude]}>
-                    <Popup>
-                      {group.issue_type.replaceAll('_', ' ')}<br />
-                      {group.distance_meters} meters away<br />
-                      {group.status}
-                    </Popup>
-                  </Marker>
-                ))}
-              </MapContainer>
+        <section className="common-section">
+          <div className="results-header">
+            <h2 className="panel-title">Marker legend</h2>
+            <div className="marker-legend" aria-label="Map marker legend">
+              <span><i className="legend-dot pothole" />Pothole</span>
+              <span><i className="legend-dot road-crack" />Road crack</span>
+              <span><i className="legend-dot trash" />broken_bin</span>
+              <span><i className="legend-dot trash" />overflowing_bin</span>
+              <span><i className="legend-dot trash" />trash_on_road</span>
+              <span><i className="legend-dot mixed" />Mixed issues</span>
             </div>
-          </section>
-        )}
+          </div>
+          <NearbyReportsMap
+            position={position}
+            radius={filters.radius}
+            issueGroups={groups}
+          />
+        </section>
       </main>
     </div>
   )

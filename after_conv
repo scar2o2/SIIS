@@ -1,0 +1,287 @@
+SIIS - FEATURES AVAILABLE AFTER MOBILE APP CONVERSION
+=====================================================
+
+This document describes the user-facing mobile application after the SIIS web
+application has been converted to a mobile app and the remaining mobile features
+have been completed.
+
+1. ACCOUNT REGISTRATION AND LOGIN
+---------------------------------
+
+Purpose:
+Allows a person to create an account and securely access reporting features.
+
+Features:
+- Register with name, email, and password.
+- Sign in and sign out.
+- Maintain an authenticated session.
+- Show the signed-in user's role and profile information.
+- Redirect unauthenticated users away from protected screens.
+
+2. CAMERA-BASED ISSUE REPORTING
+-------------------------------
+
+Purpose:
+Allows users to report infrastructure problems using a real-time image captured
+from the phone camera.
+
+Features:
+- Open the device camera from the report screen.
+- Capture a road or public-area image.
+- Preview the captured image before analysis.
+- Retake the image when the view is unclear.
+- Handle camera permission and camera errors.
+- Submit the captured image with the device location and optional description.
+
+The mobile report flow is:
+1. Open Report an Issue.
+2. Allow camera permission.
+3. Capture an image.
+4. Allow location access or use the map fallback.
+5. Run AI detection.
+6. Review detections and confidence values.
+7. Submit the report.
+8. Receive the saved-report status and report details.
+
+3. AI ISSUE DETECTION
+---------------------
+
+Purpose:
+Identifies supported infrastructure issues in the captured image.
+
+Supported model outputs:
+- pothole
+- road_crack
+- broken_bin
+- overflowing_bin
+- trash_on_road
+
+The trash classes are displayed using the original model labels. For example,
+an overflowing bin is shown as overflowing_bin and is not renamed to a generic
+trash label.
+
+Features:
+- Detect one or more issues in an image.
+- Display confidence for each detection.
+- Display bounding boxes over the image.
+- Display the native issue label beside each bounding box.
+- Show a no-detection state when no supported issue is found.
+
+4. ANNOTATED EVIDENCE
+---------------------
+
+Purpose:
+Provides visual evidence of what the AI detected.
+
+Features:
+- Draw a colored bounding box around every detection.
+- Add the issue label and confidence to the annotation.
+- Use separate visual colors for potholes, road cracks, and trash-model
+  detections.
+- Store the annotated evidence with the report.
+- Include annotated evidence in administrative review and notification emails.
+
+5. LOCATION AND MAPS
+--------------------
+
+Purpose:
+Shows where a report was created and helps users find nearby infrastructure
+issues.
+
+Features:
+- Use the device GPS location when permission is granted.
+- Show the report location on a map.
+- Open the location in Google Maps.
+- Use a safe default map area when GPS is unavailable.
+- Search nearby issue groups by radius.
+- Display issue-group markers and marker popups.
+- Fit the map to the current location and nearby groups.
+- Show a marker legend for pothole, road-crack, and trash-related groups.
+
+6. REPORT RESULTS
+-----------------
+
+Purpose:
+Confirms that a report was stored and explains how it was grouped.
+
+Features:
+- Show report ID.
+- Show submission status.
+- Show severity and priority.
+- Show detection count.
+- Show issue-group count.
+- Indicate whether a detection matched an existing issue group.
+- Show the report map and Google Maps link.
+
+An issue group represents a distinct infrastructure problem. Multiple detections
+in one submission can belong to multiple issue groups.
+
+7. COMMUNITY REPORTS
+--------------------
+
+Purpose:
+Allows users to view infrastructure issues reported by the community.
+
+Features:
+- View public reports and issue groups.
+- Open report details.
+- View issue types, including the three native trash classes.
+- View severity, priority, status, locations, and evidence.
+- Search reports.
+- Filter by issue type, severity, priority, status, and date.
+- Keep filters hidden until the user opens the filter control.
+- Use View more and View less controls for long lists.
+- Use skeleton loading while report data is being retrieved.
+
+8. MY REPORTS
+------------
+
+Purpose:
+Allows a user to track reports submitted from their account.
+
+Features:
+- View the user's submitted reports.
+- Open report details and evidence.
+- View current report status.
+- Review severity, priority, detections, issue groups, and timestamps.
+- Follow status changes from submitted through resolution or rejection.
+
+9. REPORT DETAILS AND HISTORY
+-----------------------------
+
+Purpose:
+Provides a complete record for a single report.
+
+Features:
+- Report summary and location.
+- Detection list with native issue labels.
+- Detection confidence values.
+- Associated issue-group IDs.
+- Original evidence metadata and signed image access.
+- Annotated evidence access where available.
+- Status history and grouping events.
+- Administrator status controls for authorized users.
+
+10. NEARBY REPORTS
+------------------
+
+Purpose:
+Helps users discover nearby infrastructure problems that may need attention.
+
+Features:
+- Open Nearby Map from the mobile menu.
+- Start with a default map even before GPS is available.
+- Use current device location when permitted.
+- Select a search radius.
+- View nearby issue groups.
+- Open marker popups with issue type, status, severity, priority, report count,
+  and distance.
+- Distinguish pothole, road-crack, mixed, and trash-model markers visually.
+
+11. PROFILE
+----------
+
+Purpose:
+Shows account information and a summary of the user's activity.
+
+Features:
+- Display name and email.
+- Display account role.
+- Show report totals and activity summaries.
+- Provide account logout.
+
+12. NOTIFICATION EMAILS
+-----------------------
+
+Purpose:
+Notifies the configured operations recipient when a new report is submitted.
+
+Email contents:
+- Report ID.
+- Submitter name.
+- Submitter email.
+- Detected issue types using their stored labels.
+- Severity and priority.
+- Detection count.
+- Duplicate/issue-group information.
+- Latitude and longitude.
+- Google Maps link.
+- Annotated evidence attachment.
+
+13. ADMIN DASHBOARD
+-------------------
+
+Purpose:
+Allows authorized municipal or operations staff to monitor and manage reports.
+
+Features:
+- View total reports.
+- View total issue groups.
+- View total detections.
+- View duplicate-report counts.
+- Review reports by status, severity, priority, and issue type.
+- See native trash model class names in statistics.
+- Open the administrative report list.
+
+14. ADMIN REPORT MANAGEMENT
+---------------------------
+
+Purpose:
+Allows administrators to review and update the lifecycle of reports.
+
+Features:
+- View all submitted reports.
+- Search and filter reports.
+- View reporter information.
+- Open report details and evidence.
+- Change report status to submitted, under review, acknowledged, resolved, or
+  rejected.
+- Review the report location and issue-group relationships.
+
+15. RESPONSIVE MOBILE EXPERIENCE
+-------------------------------
+
+Purpose:
+Ensures the app is usable on phones and tablets.
+
+Features:
+- Mobile navigation drawer.
+- Nearby Map menu entry.
+- No unnecessary desktop branding in the mobile drawer.
+- Icon-based navigation.
+- Mobile-friendly cards instead of wide tables.
+- Responsive maps, legends, controls, forms, and evidence images.
+- Skeleton loading for data-dependent sections.
+- Prevention of horizontal page overflow.
+
+16. SECURITY AND PRIVACY
+------------------------
+
+Purpose:
+Protects user accounts, reports, and evidence.
+
+Features:
+- Authenticated report submission.
+- Role-protected administrator screens and actions.
+- Public community report viewing as configured by the application.
+- Server-side report ownership association.
+- Protected server-side Supabase credentials.
+- Signed access to stored evidence images.
+- Validation of image type, size, coordinates, and report data.
+
+17. TYPICAL USER JOURNEY
+------------------------
+
+1. Install and open the SIIS mobile app.
+2. Register or sign in.
+3. Tap Report an Issue.
+4. Capture a photo with the device camera.
+5. Allow location access, if desired.
+6. Review AI detections such as overflowing_bin, pothole, or road_crack.
+7. Submit the report.
+8. Review severity, priority, issue groups, map location, and evidence.
+9. Open My Reports later to follow status changes.
+10. Use Nearby Map to view other community issue groups.
+
+The mobile app is intended to make infrastructure reporting quick for residents
+while giving administrators structured evidence and operational visibility.

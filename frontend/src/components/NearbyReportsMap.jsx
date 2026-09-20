@@ -12,7 +12,8 @@ function groupPosition(group) {
 
 function markerKind(group) {
   const issueTypes = new Set(group.issue_types || [group.issue_type])
-  if (issueTypes.has('POTHOLE') && issueTypes.has('ROAD_CRACK')) return 'mixed'
+  if (issueTypes.size > 1) return 'mixed'
+  if ([...issueTypes].some((type) => ['broken_bin', 'overflowing_bin', 'trash_on_road'].includes(type))) return 'trash'
   if (issueTypes.has('ROAD_CRACK')) return 'road-crack'
   return 'pothole'
 }
@@ -20,6 +21,7 @@ function markerKind(group) {
 function markerLabel(kind) {
   if (kind === 'mixed') return 'M'
   if (kind === 'road-crack') return 'C'
+  if (kind === 'trash') return 'T'
   return 'P'
 }
 

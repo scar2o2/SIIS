@@ -3,6 +3,7 @@ import ReportList from '../components/ReportList'
 import SiteHeader from '../components/SiteHeader'
 import { fetchCurrentUser, getCurrentUser } from '../services/authService'
 import { getMyReports } from '../services/aiService'
+import { Skeleton, SkeletonReportList } from '../components/Skeleton'
 import '../App.css'
 
 function initials(name = '') {
@@ -18,6 +19,7 @@ function ProfilePage() {
   const [user, setUser] = useState(getCurrentUser())
   const [reports, setReports] = useState([])
   const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     Promise.all([fetchCurrentUser(), getMyReports()])
@@ -26,6 +28,7 @@ function ProfilePage() {
         setReports(reportData.reports)
       })
       .catch((requestError) => setError(requestError.message))
+      .finally(() => setIsLoading(false))
   }, [])
 
   return (
@@ -37,7 +40,8 @@ function ProfilePage() {
           <h1>Profile</h1>
         </section>
         {error && <p className="message message-error">{error}</p>}
-        {user && (
+        {isLoading && <section className="profile-card skeleton-profile"><Skeleton className="skeleton-avatar" /><div><Skeleton className="skeleton-title" /><Skeleton /><Skeleton className="skeleton-short" /></div></section>}
+        {!isLoading && user && (
           <section className="profile-card">
             <div className="profile-avatar">{initials(user.name)}</div>
             <div>
@@ -48,16 +52,16 @@ function ProfilePage() {
           </section>
         )}
         <section className="stats-strip">
-          <div><strong>{reports.length}</strong><span>Reports</span></div>
-          <div><strong>{reports.filter((report) => report.status !== 'RESOLVED' && report.status !== 'REJECTED').length}</strong><span>Open</span></div>
-          <div><strong>{reports.filter((report) => report.status === 'RESOLVED').length}</strong><span>Resolved</span></div>
+          <div><strong>{isLoading ? '—' : reports.length}</strong><span>Reports</span></div>
+          <div><strong>{isLoading ? '—' : reports.filter((report) => report.status !== 'RESOLVED' && report.status !== 'REJECTED').length}</strong><span>Open</span></div>
+          <div><strong>{isLoading ? '—' : reports.filter((report) => report.status === 'RESOLVED').length}</strong><span>Resolved</span></div>
         </section>
         <section className="common-section">
           <div className="results-header">
             <h2 className="panel-title">Recent reports</h2>
             <a href="/my-reports">View all</a>
           </div>
-          <ReportList reports={reports.slice(0, 5)} />
+          {isLoading ? <SkeletonReportList count={3} /> : <ReportList reports={reports.slice(0, 5)} />}
         </section>
       </main>
     </div>
