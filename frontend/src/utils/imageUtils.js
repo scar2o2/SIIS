@@ -18,8 +18,14 @@ export function validateImage(file) {
 }
 
 export function formatIssueType(issueType) {
-  const normalized = String(issueType || '').toLowerCase()
+  const value = String(issueType || '').trim()
+  if (!value) return 'Unknown issue'
+
+  const normalized = value.toLowerCase()
   if (normalized === 'road_crack') return 'Road crack'
   if (normalized === 'pothole') return 'Pothole'
-  return String(issueType || 'Unknown issue')
+  if (normalized === 'waterlogging') return 'Waterlogging'
+  if (normalized === 'trash_overflow') return 'Trash overflow'
+  if (value.includes('_')) return value
+  return value
 }

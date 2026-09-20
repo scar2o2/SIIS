@@ -12,9 +12,10 @@ function DetectionOverlay({ imageUrl, image, detections }) {
         const height = ((y2 - y1) / image.height) * 100
         const className = detection.issue_type === 'road_crack'
           ? 'box crack'
-          : ['broken_bin', 'overflowing_bin', 'trash_on_road'].includes(detection.issue_type)
+          : ['waterlogging', 'trash_overflow'].includes(detection.issue_type)
             ? 'box trash'
             : 'box'
+        const labelValue = detection.class_name || detection.issue_type
 
         return (
           <div
@@ -23,7 +24,7 @@ function DetectionOverlay({ imageUrl, image, detections }) {
             style={{ left: `${left}%`, top: `${top}%`, width: `${width}%`, height: `${height}%` }}
           >
             <span className="box-label">
-              {formatIssueType(detection.issue_type)} {Math.round(detection.confidence * 100)}%
+              {formatIssueType(labelValue)} {Math.round(detection.confidence * 100)}%
             </span>
           </div>
         )

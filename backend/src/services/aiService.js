@@ -26,9 +26,8 @@ function validatePredictionResponse(payload) {
       ![
         'pothole',
         'road_crack',
-        'broken_bin',
-        'overflowing_bin',
-        'trash_on_road',
+        'waterlogging',
+        'trash_overflow',
       ].includes(detection?.issue_type) ||
       !Number.isFinite(detection?.confidence) ||
       detection.confidence < 0 ||

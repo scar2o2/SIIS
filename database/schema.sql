@@ -14,7 +14,7 @@ create table if not exists public.users (
 
 create table if not exists public.issue_groups (
   id uuid primary key default gen_random_uuid(),
-  issue_type text not null check (issue_type in ('POTHOLE', 'ROAD_CRACK', 'broken_bin', 'overflowing_bin', 'trash_on_road')),
+  issue_type text not null check (issue_type in ('POTHOLE', 'ROAD_CRACK', 'WATERLOGGING', 'TRASH_OVERFLOW')),
   latitude numeric(9, 6) not null check (latitude between -90 and 90),
   longitude numeric(9, 6) not null check (longitude between -180 and 180),
   severity text not null default 'LOW'
@@ -69,7 +69,7 @@ create table if not exists public.detections (
   id uuid primary key default gen_random_uuid(),
   report_id uuid not null references public.reports(id) on delete cascade,
   image_id uuid not null references public.images(id) on delete cascade,
-  issue_type text not null check (issue_type in ('POTHOLE', 'ROAD_CRACK', 'broken_bin', 'overflowing_bin', 'trash_on_road')),
+  issue_type text not null check (issue_type in ('POTHOLE', 'ROAD_CRACK', 'WATERLOGGING', 'TRASH_OVERFLOW')),
   confidence numeric(6, 5) not null check (confidence between 0 and 1),
   x1 numeric(12, 2) not null check (x1 >= 0),
   y1 numeric(12, 2) not null check (y1 >= 0),
@@ -99,12 +99,12 @@ alter table public.reports
 alter table public.issue_groups drop constraint if exists issue_groups_issue_type_check;
 alter table public.issue_groups
   add constraint issue_groups_issue_type_check
-  check (issue_type in ('POTHOLE', 'ROAD_CRACK', 'broken_bin', 'overflowing_bin', 'trash_on_road'));
+  check (issue_type in ('POTHOLE', 'ROAD_CRACK', 'WATERLOGGING', 'TRASH_OVERFLOW'));
 
 alter table public.detections drop constraint if exists detections_issue_type_check;
 alter table public.detections
   add constraint detections_issue_type_check
-  check (issue_type in ('POTHOLE', 'ROAD_CRACK', 'broken_bin', 'overflowing_bin', 'trash_on_road'));
+  check (issue_type in ('POTHOLE', 'ROAD_CRACK', 'WATERLOGGING', 'TRASH_OVERFLOW'));
 
 alter table public.users add column if not exists password_hash text;
 alter table public.users add column if not exists role text not null default 'USER';

@@ -2,9 +2,8 @@ const issueTypes = [
   ['', 'All issues'],
   ['POTHOLE', 'Pothole'],
   ['ROAD_CRACK', 'Road crack'],
-  ['broken_bin', 'broken_bin'],
-  ['overflowing_bin', 'overflowing_bin'],
-  ['trash_on_road', 'trash_on_road'],
+  ['WATERLOGGING', 'Waterlogging'],
+  ['TRASH_OVERFLOW', 'Trash overflow'],
 ]
 
 const levels = [

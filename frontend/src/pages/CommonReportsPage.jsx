@@ -139,9 +139,8 @@ function CommonReportsPage() {
             <div className="marker-legend" aria-label="Map marker legend">
               <span><i className="legend-dot pothole" />Pothole</span>
               <span><i className="legend-dot road-crack" />Road crack</span>
-              <span><i className="legend-dot trash" />broken_bin</span>
-              <span><i className="legend-dot trash" />overflowing_bin</span>
-              <span><i className="legend-dot trash" />trash_on_road</span>
+              <span><i className="legend-dot waterlogging" />Waterlogging</span>
+              <span><i className="legend-dot trash" />Trash overflow</span>
               <span><i className="legend-dot mixed" />Mixed</span>
             </div>
           </div>

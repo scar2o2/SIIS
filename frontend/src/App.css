@@ -383,6 +383,10 @@
   background: #16a085;
 }
 
+.issue-marker-waterlogging {
+  background: #2784c6;
+}
+
 .issue-marker-mixed {
   background: linear-gradient(135deg, #d85814 0 48%, #6b4fd8 52% 100%);
 }
@@ -418,6 +422,10 @@
 
 .legend-dot.trash {
   background: #16a085;
+}
+
+.legend-dot.waterlogging {
+  background: #2784c6;
 }
 
 .legend-dot.mixed {
@@ -1322,6 +1330,11 @@ h1,
 .issue-marker-trash,
 .legend-dot.trash {
   background: #16a085;
+}
+
+.issue-marker-waterlogging,
+.legend-dot.waterlogging {
+  background: #2784c6;
 }
 
 .issue-marker-mixed,

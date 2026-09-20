@@ -33,19 +33,22 @@ function DetectionResult({ result }) {
         </div>
       )}
       <ol className="detection-list">
-      {result.detections.map((detection, index) => (
-        <li
-          className={`detection-item ${detection.issue_type === 'road_crack' ? 'crack' : ['broken_bin', 'overflowing_bin', 'trash_on_road'].includes(detection.issue_type) ? 'trash' : ''}`}
-          key={`${detection.issue_type}-${index}`}
-        >
-          <div className="detection-label">
-            {index + 1}. {formatIssueType(detection.issue_type)}
-          </div>
-          <div className="detection-meta">
-            Confidence: {Math.round(detection.confidence * 100)}%
-          </div>
-        </li>
-      ))}
+      {result.detections.map((detection, index) => {
+        const label = detection.class_name || detection.issue_type
+        return (
+          <li
+            className={`detection-item ${detection.issue_type === 'road_crack' ? 'crack' : ['waterlogging', 'trash_overflow'].includes(detection.issue_type) ? 'trash' : ''}`}
+            key={`${detection.issue_type}-${index}`}
+          >
+            <div className="detection-label">
+              {index + 1}. {formatIssueType(label)}
+            </div>
+            <div className="detection-meta">
+              Confidence: {Math.round(detection.confidence * 100)}%
+            </div>
+          </li>
+        )
+      })}
       </ol>
     </>
   )

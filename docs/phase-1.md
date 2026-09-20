@@ -136,7 +136,7 @@ This phase does not include:
 - priority calculation
 - repair scheduling
 - municipality or worker modules
-- waterlogging models (trash detection is supported when the trash model is installed)
+- predictive-maintenance features
 - notifications
 - cloud deployment
 - Android APK packaging

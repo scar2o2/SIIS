@@ -21,9 +21,8 @@ const REPORT_STATUSES = [
 function normalizeIssueType(issueType) {
   const normalized = String(issueType || '').toLowerCase()
   if (normalized === 'road_crack') return 'ROAD_CRACK'
-  if (['broken_bin', 'overflowing_bin', 'trash_on_road'].includes(normalized)) {
-    return normalized
-  }
+  if (normalized === 'waterlogging') return 'WATERLOGGING'
+  if (normalized === 'trash_overflow') return 'TRASH_OVERFLOW'
   return 'POTHOLE'
 }
 
@@ -74,7 +73,7 @@ function normalizeEnumFilter(value) {
 
 function normalizeIssueFilter(value) {
   const normalized = normalizeFilter(value)
-  if (['broken_bin', 'overflowing_bin', 'trash_on_road'].includes(normalized.toLowerCase())) {
+  if (['waterlogging', 'trash_overflow'].includes(normalized.toLowerCase())) {
     return normalized.toLowerCase()
   }
   return normalized.toUpperCase()

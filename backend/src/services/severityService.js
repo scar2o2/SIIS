@@ -13,7 +13,7 @@ function detectionScore(detection, image) {
   const confidenceSupport = clamp(detection.confidence, 0, 1) * 20
   const issueTypeWeight = detection.issue_type === 'road_crack'
     ? 5
-    : ['broken_bin', 'overflowing_bin', 'trash_on_road'].includes(detection.issue_type) ? 3 : 0
+    : ['waterlogging', 'trash_overflow'].includes(detection.issue_type) ? 3 : 0
 
   return areaScore + confidenceSupport + issueTypeWeight
 }

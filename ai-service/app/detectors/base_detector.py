@@ -14,9 +14,10 @@ class Detection:
     y1: float
     x2: float
     y2: float
+    class_name: str | None = None
 
     def as_dict(self) -> dict[str, Any]:
-        return {
+        payload = {
             "issue_type": self.issue_type,
             "confidence": round(self.confidence, 4),
             "bounding_box": {
@@ -26,6 +27,9 @@ class Detection:
                 "y2": round(self.y2, 2),
             },
         }
+        if self.class_name is not None:
+            payload["class_name"] = self.class_name
+        return payload
 
 
 class BaseDetector:
@@ -52,20 +56,25 @@ class BaseDetector:
             boxes = result.boxes.xyxy.cpu().tolist()
             confidences = result.boxes.conf.cpu().tolist()
             class_ids = result.boxes.cls.cpu().tolist() if result.boxes.cls is not None else []
+            model_names = getattr(self.model, "names", {}) or {}
 
             for index, (coordinates, confidence) in enumerate(zip(boxes, confidences)):
                 x1, y1, x2, y2 = coordinates
-                issue_type = self.issue_type
-                if self.issue_type == "trash" and index < len(class_ids):
-                    issue_type = str(self.model.names[int(class_ids[index])])
+                class_id = None
+                if index < len(class_ids):
+                    class_id = int(class_ids[index])
+                class_name = None
+                if class_id is not None:
+                    class_name = model_names.get(class_id)
                 detections.append(
                     Detection(
-                        issue_type=issue_type,
+                        issue_type=self.issue_type,
                         confidence=float(confidence),
                         x1=float(x1),
                         y1=float(y1),
                         x2=float(x2),
                         y2=float(y2),
+                        class_name=class_name,
                     )
                 )
 
