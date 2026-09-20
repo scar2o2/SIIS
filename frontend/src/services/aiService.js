@@ -1,6 +1,20 @@
 import { authHeaders } from './authService'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3000'
+const DEFAULT_WEB_API_URL = 'http://127.0.0.1:3000'
+const DEFAULT_ANDROID_API_URL = 'http://10.0.2.2:3000'
+
+function resolveApiUrl() {
+  const configuredUrl = import.meta.env.VITE_API_URL
+  if (configuredUrl) return configuredUrl
+
+  if (window.Capacitor && window.Capacitor.isNativePlatform?.()) {
+    return import.meta.env.VITE_API_URL_ANDROID || DEFAULT_ANDROID_API_URL
+  }
+
+  return DEFAULT_WEB_API_URL
+}
+
+const API_URL = resolveApiUrl()
 const REQUEST_TIMEOUT_MS = 60_000
 
 function queryString(filters = {}) {

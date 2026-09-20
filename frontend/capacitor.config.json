@@ -1,0 +1,12 @@
+{
+  "appId": "com.siis.app",
+  "appName": "SIIS",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "http"
+  },
+  "android": {
+    "allowMixedContent": true
+  }
+}

@@ -11,14 +11,20 @@ const app = express()
 app.use(
   cors({
     origin(origin, callback) {
-      if (
+      const allowed =
         !origin ||
         frontendOrigins.includes(origin) ||
-        /^https?:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)
-      ) {
+        /^https?:\/\/(localhost|127\.0\.0\.1|10\.0\.2\.2):\d+$/.test(origin) ||
+        /^https?:\/\/((10|192\.168)\.\d+\.\d+|\d+\.\d+\.\d+\.\d+):\d+$/.test(origin) ||
+        /^http:\/\/localhost$/.test(origin) ||
+        /^https:\/\/localhost$/.test(origin) ||
+        /^capacitor:\/\/localhost$/.test(origin)
+
+      if (allowed) {
         callback(null, true)
         return
       }
+
       callback(new Error('Origin is not allowed by backend CORS policy'))
     },
   })

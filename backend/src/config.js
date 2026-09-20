@@ -3,6 +3,25 @@ const dotenv = require('dotenv')
 
 dotenv.config({ path: path.resolve(__dirname, '..', '.env') })
 
+const parseOrigins = (value) => {
+  const entries = (value || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean)
+
+  return [...new Set([
+    ...entries,
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://10.0.2.2:5173',
+    'capacitor://localhost',
+    'http://localhost',
+    'https://localhost',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+  ])]
+}
+
 const port = Number.parseInt(process.env.PORT || '3000', 10)
 if (!Number.isInteger(port) || port < 1 || port > 65535) {
   throw new Error('PORT must be a valid TCP port between 1 and 65535')
@@ -14,13 +33,7 @@ if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
 
 module.exports = {
   port,
-  frontendOrigins: [
-    ...new Set([
-      process.env.FRONTEND_ORIGIN || 'http://localhost:5173',
-      'http://localhost:5173',
-      'http://127.0.0.1:5173',
-    ]),
-  ],
+  frontendOrigins: parseOrigins(process.env.FRONTEND_ORIGIN),
   aiServiceUrl: process.env.AI_SERVICE_URL || 'http://127.0.0.1:8000',
   aiServiceTimeoutMs: Number.parseInt(process.env.AI_SERVICE_TIMEOUT_MS || '60000', 10),
   duplicateDistanceMeters: Number.parseFloat(process.env.DUPLICATE_DISTANCE_METERS || '50'),
