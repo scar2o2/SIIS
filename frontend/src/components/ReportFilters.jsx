@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from 'react'
+
 const issueTypes = [
   ['', 'All issues'],
   ['POTHOLE', 'Pothole'],
@@ -25,16 +27,35 @@ const statuses = [
 
 function ReportFilters({ filters, onChange, includeSearch = true }) {
   const [isOpen, setIsOpen] = useState(false)
+  const [pendingFilters, setPendingFilters] = useState(filters)
+  const skipInitialChange = useRef(true)
+  const onChangeRef = useRef(onChange)
+
+  useEffect(() => {
+    onChangeRef.current = onChange
+  }, [onChange])
+
+  useEffect(() => {
+    if (skipInitialChange.current) {
+      skipInitialChange.current = false
+      return undefined
+    }
+
+    const timer = window.setTimeout(() => onChangeRef.current(pendingFilters), 400)
+    return () => window.clearTimeout(timer)
+  }, [pendingFilters])
+
   function setFilter(key, value) {
-    onChange({ ...filters, [key]: value })
+    setPendingFilters((current) => ({ ...current, [key]: value }))
   }
 
   function handleReset() {
+    setPendingFilters({})
     onChange({})
   }
 
-  const hasActiveFilters = Object.values(filters).some((v) => v && v !== '')
-  const activeFilterCount = Object.values(filters).filter((v) => v && v !== '').length
+  const hasActiveFilters = Object.values(pendingFilters).some((v) => v && v !== '')
+  const activeFilterCount = Object.values(pendingFilters).filter((v) => v && v !== '').length
 
   return (
     <div className="filter-panel">
@@ -56,7 +77,7 @@ function ReportFilters({ filters, onChange, includeSearch = true }) {
             id="filter-search"
             className="filter-input"
             placeholder="ID, description, status..."
-            value={filters.search || ''}
+            value={pendingFilters.search || ''}
             onChange={(event) => setFilter('search', event.target.value)}
           />
         </div>
@@ -67,7 +88,7 @@ function ReportFilters({ filters, onChange, includeSearch = true }) {
         <select
           id="filter-issue"
           className="filter-input"
-          value={filters.issue_type || ''}
+          value={pendingFilters.issue_type || ''}
           onChange={(event) => setFilter('issue_type', event.target.value)}
         >
           {issueTypes.map(([value, label]) => <option key={label} value={value}>{label}</option>)}
@@ -79,7 +100,7 @@ function ReportFilters({ filters, onChange, includeSearch = true }) {
         <select
           id="filter-severity"
           className="filter-input"
-          value={filters.severity || ''}
+          value={pendingFilters.severity || ''}
           onChange={(event) => setFilter('severity', event.target.value)}
         >
           {levels.map(([value, label]) => <option key={label} value={value}>{label}</option>)}
@@ -91,7 +112,7 @@ function ReportFilters({ filters, onChange, includeSearch = true }) {
         <select
           id="filter-priority"
           className="filter-input"
-          value={filters.priority || ''}
+          value={pendingFilters.priority || ''}
           onChange={(event) => setFilter('priority', event.target.value)}
         >
           {levels.map(([value, label]) => <option key={label} value={value}>{label}</option>)}
@@ -103,7 +124,7 @@ function ReportFilters({ filters, onChange, includeSearch = true }) {
         <select
           id="filter-status"
           className="filter-input"
-          value={filters.status || ''}
+          value={pendingFilters.status || ''}
           onChange={(event) => setFilter('status', event.target.value)}
         >
           {statuses.map(([value, label]) => <option key={label} value={value}>{label}</option>)}
@@ -116,7 +137,7 @@ function ReportFilters({ filters, onChange, includeSearch = true }) {
           id="filter-date-from"
           className="filter-input"
           type="date"
-          value={filters.date_from || ''}
+          value={pendingFilters.date_from || ''}
           onChange={(event) => setFilter('date_from', event.target.value)}
         />
       </div>
@@ -127,7 +148,7 @@ function ReportFilters({ filters, onChange, includeSearch = true }) {
           id="filter-date-to"
           className="filter-input"
           type="date"
-          value={filters.date_to || ''}
+          value={pendingFilters.date_to || ''}
           onChange={(event) => setFilter('date_to', event.target.value)}
         />
       </div>
@@ -146,4 +167,3 @@ function ReportFilters({ filters, onChange, includeSearch = true }) {
 }
 
 export default ReportFilters
-import { useState } from 'react'

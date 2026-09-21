@@ -7,6 +7,11 @@ import ReportMap from '../components/ReportMap'
 import SiteHeader from '../components/SiteHeader'
 import { createReport, predictImage } from '../services/aiService'
 import { validateImage } from '../utils/imageUtils'
+import {
+  captureReportImage,
+  getCurrentDeviceLocation,
+  isNativeAndroid,
+} from '../utils/mobileMedia'
 import '../App.css'
 
 function DetectionPage() {
@@ -18,6 +23,8 @@ function DetectionPage() {
   const [savedReport, setSavedReport] = useState(null)
   const [error, setError] = useState('')
   const [description, setDescription] = useState('')
+  const [isCapturing, setIsCapturing] = useState(false)
+  const [location, setLocation] = useState(null)
 
   const previewUrl = useMemo(() => (file ? URL.createObjectURL(file) : ''), [file])
 
@@ -35,7 +42,23 @@ function DetectionPage() {
     setResult(null)
     setReportMessage('')
     setSavedReport(null)
+    setLocation(null)
     setFile(validationError ? null : nextFile)
+  }
+
+  async function handleCapture() {
+    setError('')
+    setReportMessage('')
+    setIsCapturing(true)
+    try {
+      handleFileSelected(await captureReportImage())
+    } catch (captureError) {
+      if (captureError.message !== 'User cancelled photos app') {
+        setError(captureError.message || 'Unable to capture an image.')
+      }
+    } finally {
+      setIsCapturing(false)
+    }
   }
 
   async function handleAnalyze() {
@@ -65,44 +88,57 @@ function DetectionPage() {
     setReportMessage('')
     setSavedReport(null)
     setDescription('')
+    setLocation(null)
   }
 
-  function handleSaveReport() {
+  async function handleCaptureLocation() {
     if (!file || !result || isSavingReport) {
       return
     }
 
-    if (!navigator.geolocation) {
-      setReportMessage('Location is unavailable in this browser. The report was not saved.')
+    setError('')
+    setReportMessage('Requesting your current device location...')
+    setIsSavingReport(true)
+    try {
+      const position = await getCurrentDeviceLocation()
+      const nextLocation = {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+      }
+      setLocation(nextLocation)
+      setReportMessage('Current location captured. Review it, then submit the report.')
+    } catch (requestError) {
+      setReportMessage(requestError.message || 'Unable to get your current location.')
+    } finally {
+      setIsSavingReport(false)
+    }
+  }
+
+  async function handleSaveReport() {
+    if (!file || !result || isSavingReport) {
+      return
+    }
+    if (!location) {
+      setReportMessage('Capture your current location before submitting the report.')
       return
     }
 
     setError('')
-    setReportMessage('Requesting your current location...')
+    setReportMessage('Saving report...')
     setIsSavingReport(true)
-    navigator.geolocation.getCurrentPosition(
-      async ({ coords }) => {
-        try {
-          const report = await createReport({
-            file,
-            latitude: coords.latitude,
-            longitude: coords.longitude,
-            description,
-          })
-          setSavedReport(report)
-          setReportMessage('Report saved successfully with the current device location.')
-        } catch (requestError) {
-          setReportMessage(requestError.message)
-        } finally {
-          setIsSavingReport(false)
-        }
-      },
-      () => {
-        setReportMessage('Location permission is required to save this report.')
-        setIsSavingReport(false)
-      },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-    )
+    try {
+      const report = await createReport({
+        file,
+        ...location,
+        description,
+      })
+      setSavedReport(report)
+      setReportMessage('Report saved successfully with the current device location.')
+    } catch (requestError) {
+      setReportMessage(requestError.message || 'Unable to save the report.')
+    } finally {
+      setIsSavingReport(false)
+    }
   }
 
   return (
@@ -122,8 +158,21 @@ function DetectionPage() {
           <section className="panel upload-panel">
             <h2 className="panel-title">Upload image</h2>
             <p className="panel-description">Use a clear image of the road surface.</p>
-            <ImageUploader onFileSelected={handleFileSelected} />
+            <ImageUploader
+              onFileSelected={handleFileSelected}
+              onCapture={handleCapture}
+              isCapturing={isCapturing}
+              showCapture={isNativeAndroid()}
+              showUpload={!isNativeAndroid()}
+            />
             <ImagePreview file={file} previewUrl={previewUrl} />
+            {location && (
+              <div className="location-confirmation" role="status">
+                <strong>Current location captured</strong>
+                <span>Latitude: {location.latitude.toFixed(6)}</span>
+                <span>Longitude: {location.longitude.toFixed(6)}</span>
+              </div>
+            )}
             <label className="field-block">
               Description
               <textarea
@@ -172,14 +221,24 @@ function DetectionPage() {
               </div>
             )}
             {result && (
-              <button
-                className="button button-primary report-button"
-                type="button"
-                disabled={isSavingReport}
-                onClick={handleSaveReport}
-              >
-                {isSavingReport ? 'Saving report...' : 'Submit Report with Current Location'}
-              </button>
+              <div className="report-actions">
+                <button
+                  className="button button-secondary"
+                  type="button"
+                  disabled={isSavingReport}
+                  onClick={handleCaptureLocation}
+                >
+                  {isSavingReport && !location ? 'Getting location...' : 'Capture Current Location'}
+                </button>
+                <button
+                  className="button button-primary report-button"
+                  type="button"
+                  disabled={isSavingReport || !location}
+                  onClick={handleSaveReport}
+                >
+                  {isSavingReport && location ? 'Saving report...' : 'Submit Report'}
+                </button>
+              </div>
             )}
             {reportMessage && <p className="message report-message">{reportMessage}</p>}
             {savedReport && (

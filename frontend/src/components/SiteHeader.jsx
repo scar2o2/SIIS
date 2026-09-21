@@ -70,8 +70,11 @@ function SiteHeader() {
       <header className="site-header">
         <div className="header-inner">
           <a className="brand" href="/">
-            <span className="brand-mark" aria-hidden="true">IS</span>
-            <span className="brand-name">INFRA-SIGHT</span>
+            <span className="brand-mark" aria-hidden="true">SIIS</span>
+            <span className="brand-name">
+              <span>INFRASTRUCTURE</span>
+              <span>INTELLIGENCE</span>
+            </span>
           </a>
 
           {/* Desktop Navigation */}

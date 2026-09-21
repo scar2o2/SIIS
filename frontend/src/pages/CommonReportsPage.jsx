@@ -23,6 +23,9 @@ function CommonReportsPage() {
   const [isLoadingReports, setIsLoadingReports] = useState(true)
   const [visibleGroupCount, setVisibleGroupCount] = useState(3)
   const autoLocatedRef = useRef(false)
+  const mapRadiusTimer = useRef(null)
+
+  useEffect(() => () => window.clearTimeout(mapRadiusTimer.current), [])
 
   useEffect(() => {
     getCommonReports(filters)
@@ -74,6 +77,15 @@ function CommonReportsPage() {
   function handleMapFiltersChange(nextFilters) {
     setMapFilters(nextFilters)
     if (mapPosition) loadNearby(mapPosition[0], mapPosition[1], nextFilters)
+  }
+
+  function handleMapRadiusChange(value) {
+    const nextFilters = { ...mapFilters, radius: value }
+    setMapFilters(nextFilters)
+    window.clearTimeout(mapRadiusTimer.current)
+    mapRadiusTimer.current = window.setTimeout(() => {
+      if (mapPosition) loadNearby(mapPosition[0], mapPosition[1], nextFilters)
+    }, 400)
   }
 
   return (
@@ -148,7 +160,7 @@ function CommonReportsPage() {
           <div className="nearby-row">
             <div className="filter-field">
               <label htmlFor="map-radius" className="filter-label">Radius (meters)</label>
-              <input id="map-radius" className="filter-input" type="number" min="1" max="50000" value={mapFilters.radius || '1000'} onChange={(event) => handleMapFiltersChange({ ...mapFilters, radius: event.target.value })} />
+              <input id="map-radius" className="filter-input" type="number" min="1" max="50000" value={mapFilters.radius || '1000'} onChange={(event) => handleMapRadiusChange(event.target.value)} />
             </div>
             <button className="button button-primary" type="button" onClick={() => handleLocate(true)}>Refresh current location</button>
           </div>

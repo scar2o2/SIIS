@@ -23,7 +23,7 @@ function HomePage() {
       <main className="main-content">
         <section className="home-hero">
           <p className="eyebrow">Report. Detect. Prioritize.</p>
-          <h1>INFRA-SIGHT</h1>
+          <h1>SIIS</h1>
           <p className="intro-copy">
             AI-powered infrastructure monitoring for safer and better-connected cities.
           </p>
